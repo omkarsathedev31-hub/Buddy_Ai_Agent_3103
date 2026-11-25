@@ -1,0 +1,2057 @@
+BUDDY ELDER AI — FULL PROJECT INTEGRATION & STABILIZATION
+
+Act as a Senior Full-Stack Software Engineer, QA Engineer, Software Architect, and Integration Specialist.
+
+I have an existing Buddy Elder AI application. The project contains multiple features, but some features are incomplete, some are not properly connected, some may have bugs, and some frontend/backend/database integrations may not work correctly.
+
+PRIMARY OBJECTIVE
+
+Do NOT rebuild the entire application from scratch.
+
+Do NOT remove existing features just because they are difficult to fix.
+
+Do NOT add new features during the initial audit.
+
+Your primary objective is to audit, stabilize, integrate, repair, and test the existing application until all implemented features work together properly.
+
+PHASE 1 — FULL PROJECT AUDIT
+
+Inspect the entire existing repository, including:
+
+- Frontend pages, components, routes, layouts
+- Backend services, APIs, controllers and middleware
+- Authentication and authorization
+- Database schema, migrations and queries
+- AI agent configuration, prompts and integrations
+- Environment variables
+- Admin dashboard
+- Elder dashboard
+- Caregiver dashboard
+- Voice input and voice output
+- Educational lessons
+- Multilingual support
+- Scam and safety features
+- Emergency assistance
+- Feedback
+- Notifications
+- Deployment configuration
+- Build configuration
+- Dependencies
+- Existing tests
+
+Create a comprehensive report identifying:
+
+- Working features
+- Partially working features
+- Broken features
+- Missing features
+- Disconnected features
+- Duplicate implementations
+- Security issues
+- Runtime errors
+- Build errors
+- API errors
+- Database errors
+- UI errors
+- Integration failures
+
+PHASE 2 — DOCUMENT THE PROJECT
+
+Create or update these files:
+
+- PRD.md
+- ARCHITECTURE.md
+- DESIGN.md
+- RULES.md
+- TASKS.md
+- MEMORY.md
+- INTEGRATION_AUDIT.md
+- TESTING_REPORT.md
+
+Maintain a single source of truth.
+
+TASKS.md must contain checklists and status for every task.
+
+Do not mark a task complete unless it has been verified.
+
+PHASE 3 — ESTABLISH A SAFE BASELINE
+
+Before making significant modifications:
+
+- Inspect Git status.
+- Preserve the existing implementation.
+- Avoid deleting working code.
+- Create a backup or safe Git checkpoint if appropriate.
+- Identify the current build status.
+- Identify existing errors.
+- Record the current deployment status.
+
+Do not overwrite project configuration without understanding its purpose.
+
+PHASE 4 — REPAIR THE CORE ARCHITECTURE
+
+Verify and fix the integration of:
+
+1. Frontend routing
+2. API communication
+3. Backend services
+4. Authentication
+5. Authorization
+6. Database connections
+7. AI service connection
+8. Environment variables
+9. Error handling
+10. Loading states
+11. Empty states
+12. Responsive layouts
+
+Ensure the frontend uses the correct backend API.
+
+Ensure there are no conflicting API base URLs, duplicated API clients, incompatible data models, or inconsistent authentication states.
+
+PHASE 5 — FEATURE INTEGRATION
+
+For every existing feature:
+
+1. Inspect the frontend.
+2. Inspect its backend.
+3. Inspect the database requirements.
+4. Verify its API endpoints.
+5. Verify authentication and permissions.
+6. Connect missing integrations.
+7. Repair broken functionality.
+8. Add validation and error handling.
+9. Test the actual user workflow.
+10. Update TASKS.md.
+
+Do not create mock functionality and present it as real functionality.
+
+Do not use hardcoded data where real database data is expected.
+
+Do not create fake AI responses.
+
+PHASE 6 — BUDDY ELDER AI REQUIREMENTS
+
+Preserve and correctly integrate the existing modules:
+
+- Elder-friendly user interface
+- Large text and accessible buttons
+- Elder authentication
+- Caregiver authentication and access
+- Admin authentication
+- AI conversational agent
+- Voice input
+- Spoken AI responses
+- English, Hindi and Marathi support
+- Educational learning modules
+- Smartphone education
+- WhatsApp education
+- Internet safety
+- Scam awareness and detection
+- Emergency assistance
+- Caregiver dashboard
+- Admin dashboard
+- User management
+- Feedback collection
+- Chat history
+- Learning progress
+- Data persistence
+
+Ensure the AI assistant answers different questions appropriately and does not repeatedly return generic or identical responses.
+
+Ensure safety-sensitive questions are handled responsibly and the AI does not falsely claim to provide emergency services or professional medical advice.
+
+PHASE 7 — END-TO-END TESTING
+
+Test the actual application workflows.
+
+Authentication
+
+- Register a user.
+- Log in.
+- Log out.
+- Refresh the page.
+- Verify session persistence.
+- Verify invalid credentials.
+- Verify protected routes.
+- Verify role-based permissions.
+
+AI Chat
+
+- Send different questions.
+- Verify contextually relevant answers.
+- Verify conversation history.
+- Verify AI error handling.
+- Verify loading states.
+- Verify language handling.
+- Verify API key failures are handled securely.
+
+Lessons
+
+- Open a lesson.
+- Complete a lesson.
+- Save progress.
+- Refresh.
+- Verify progress remains.
+- Verify dashboard progress updates.
+
+Caregiver
+
+- Verify caregiver authentication.
+- Verify correct elder association.
+- Verify permissions.
+- Verify displayed information is accurate.
+- Verify unauthorized users cannot access another person's data.
+
+Admin
+
+- Verify admin authentication.
+- Verify user list.
+- Verify dashboard statistics.
+- Verify user management.
+- Verify backend authorization.
+- Verify actions persist.
+- Verify ordinary users cannot access admin features.
+
+Accessibility
+
+- Test large text.
+- Test buttons.
+- Test keyboard navigation.
+- Test mobile responsiveness.
+- Test error messages.
+- Test language switching.
+
+PHASE 8 — FIXING STRATEGY
+
+Prioritize problems in this order:
+
+P0 — Security, data loss, application crashes, broken authentication.
+
+P1 — Broken backend/database connections and critical workflows.
+
+P2 — Broken features, integrations, API failures and incorrect functionality.
+
+P3 — UI problems, responsiveness, accessibility and usability.
+
+P4 — Performance, optimization and minor improvements.
+
+Fix issues in small batches.
+
+After each batch:
+
+1. Run the relevant tests.
+2. Run the build.
+3. Review errors.
+4. Verify the fix.
+5. Update documentation.
+6. Update TASKS.md.
+7. Preserve working features.
+
+PHASE 9 — FINAL VERIFICATION
+
+Before claiming the project is complete:
+
+- Run the production build.
+- Run tests.
+- Check linting if available.
+- Check frontend/backend startup.
+- Check API endpoints.
+- Check database persistence.
+- Check authentication.
+- Check authorization.
+- Check all critical user journeys.
+- Check mobile responsiveness.
+- Check environment configuration.
+- Check deployment.
+- Check production website functionality.
+
+Never claim a feature works unless it has been tested.
+
+Never hide failures.
+
+Never mark untested functionality as complete.
+
+FINAL DELIVERABLE
+
+Provide:
+
+1. Complete audit report.
+2. List of problems found.
+3. List of problems fixed.
+4. Features verified working.
+5. Features still incomplete.
+6. Test results.
+7. Build results.
+8. Deployment status.
+9. Remaining risks.
+10. Updated TASKS.md.
+
+Work carefully, systematically, and incrementally.
+
+Start with the audit. Do not start adding features until the audit and stabilization process are com  # BUDDY ELDER AI — MASTER PROJECT COMPLETION, INTEGRATION, REPAIR & QA PROMPT
+
+## ROLE
+
+Act as a senior software architect, full-stack engineer, AI agent engineer, accessibility specialist, security engineer, database engineer, DevOps engineer, and QA automation engineer.
+
+You are responsible for completing my existing **Buddy Elder AI** project.
+
+This is an existing application with multiple features. Some features may be incomplete, broken, disconnected, duplicated, improperly integrated, or incorrectly implemented.
+
+Your mission is to transform the existing project into a complete, reliable, secure, accessible, fully integrated, and genuinely functional elderly assistance platform.
+
+**Do not merely generate code, a design, or a report. Work directly inside the existing repository, inspect the implementation, repair it, integrate it, test it, and verify it.**
+
+---
+
+# 1. MAIN OBJECTIVE
+
+Build and stabilize the complete Buddy Elder AI platform with two connected applications:
+
+### Application A — Senior / Elderly User App
+
+Designed for:
+
+- Senior citizens
+- Visually impaired users
+- Users with limited digital literacy
+- Users who prefer voice interactions
+- Users who require simple instructions
+- English, Hindi, Marathi, and Hinglish speakers
+
+### Application B — Family / Caregiver App
+
+Designed for:
+
+- Family members
+- Caregivers
+- Authorized contacts
+- People helping seniors with daily technology and safety
+
+Both applications must work through a shared, secure backend, database, authentication system, APIs, AI services, and notification infrastructure.
+
+The senior must remain in control of their personal information and family sharing permissions.
+
+---
+
+# 2. NON-NEGOTIABLE RULES
+
+1. Inspect the entire existing repository before modifying it.
+2. Preserve working features.
+3. Do not rebuild from scratch unless the existing architecture is genuinely unusable.
+4. Do not create a second application beside the existing application.
+5. Do not create duplicate pages, API clients, services, database schemas, or authentication systems.
+6. Do not replace real functionality with mock data.
+7. Do not use hardcoded AI responses.
+8. Do not create fake buttons.
+9. Do not leave core features as placeholders.
+10. Do not claim something works unless you have tested it.
+11. Do not remove a feature just because it is difficult to fix.
+12. Do not expose API keys, service-role keys, database credentials, JWT secrets, or private data.
+13. Do not modify unrelated features while fixing a specific problem.
+14. Do not silently swallow errors.
+15. Do not create unnecessary architectural complexity.
+16. Do not blindly overwrite project files.
+17. Do not assume external integrations work without verification.
+18. Do not fake messaging delivery, AI responses, notifications, or activation status.
+19. Do not make destructive database changes without preserving existing data.
+20. Do not stop after the initial audit or planning report.
+
+Your priority is to **repair, integrate, complete, and verify the existing project**.
+
+---
+
+# 3. PHASE 0 — REPOSITORY INSPECTION
+
+Before writing code, inspect:
+
+- Repository structure
+- Package files
+- Frontend architecture
+- Backend architecture
+- API routes
+- Authentication
+- Authorization
+- Database
+- Database migrations
+- AI provider integration
+- Messaging CLI integration
+- Environment variables
+- Deployment configuration
+- Existing tests
+- Existing documentation
+- Existing UI components
+- Existing dashboards
+- Existing features
+- Build and runtime errors
+- Git status
+
+Identify the current technology stack and continue using it where practical.
+
+Create an initial audit document:
+
+`INTEGRATION_AUDIT.md`
+
+Document:
+
+- Existing architecture
+- Existing functionality
+- Working features
+- Partial features
+- Broken features
+- Missing features
+- Disconnected features
+- Duplicate implementations
+- Security problems
+- Database issues
+- API problems
+- Build errors
+- Deployment issues
+- Required credentials
+- Integration problems
+
+Classify each feature as:
+
+- COMPLETE
+- PARTIAL
+- BROKEN
+- MISSING
+- DISCONNECTED
+- BLOCKED
+
+Do not mark anything COMPLETE without evidence.
+
+---
+
+# 4. PHASE 1 — PROJECT DOCUMENTATION
+
+Create or update:
+
+- `prd.md`
+- `architecture.md`
+- `design.md`
+- `rules.md`
+- `tasks.md`
+- `memory.md`
+- `INTEGRATION_AUDIT.md`
+- `TESTING_REPORT.md`
+
+## Documentation rules
+
+The documentation must describe the actual implementation, not an imaginary architecture.
+
+### tasks.md
+
+Maintain the master implementation checklist.
+
+For each feature include:
+
+- Feature name
+- Priority
+- Current status
+- Files involved
+- Dependencies
+- Problem
+- Required fix
+- Test status
+- Verification evidence
+
+Use the following priority levels:
+
+- P0: Security, data loss, crashes, broken authentication
+- P1: Core functionality and critical integration
+- P2: Broken features and incomplete workflows
+- P3: Accessibility and usability
+- P4: Performance and optimization
+
+Update task status after every completed task.
+
+Do not mark tasks complete before verification.
+
+---
+
+# 5. PHASE 2 — SAFE BASELINE AND WORKING CHECKPOINT
+
+Before major changes:
+
+- Check Git status.
+- Preserve current work.
+- Create a safe checkpoint if Git is available.
+- Identify existing build errors.
+- Identify existing test failures.
+- Record current application behavior.
+- Protect existing database data.
+- Review existing environment configuration.
+
+Never delete working code simply to make the implementation easier.
+
+Make changes incrementally.
+
+After each logical group of fixes:
+
+1. Review modified files.
+2. Run relevant tests.
+3. Run the build.
+4. Fix introduced errors.
+5. Update tasks.
+6. Save a checkpoint when appropriate.
+
+---
+
+# 6. PHASE 3 — ARCHITECTURE AND INTEGRATION
+
+Maintain a consistent architecture.
+
+## Frontend
+
+Use the existing frontend framework and architecture.
+
+Ensure:
+
+- Consistent routing
+- Reusable components
+- Centralized API client
+- Consistent authentication state
+- Shared design system
+- Form validation
+- Loading states
+- Error states
+- Empty states
+- Responsive layouts
+- Protected routes
+- Role-based navigation
+
+## Backend
+
+Ensure:
+
+- Consistent API structure
+- Authentication middleware
+- Authorization middleware
+- Validation
+- Error handling
+- Logging
+- Rate limiting
+- Secure configuration
+- Database access layer
+- AI service layer
+- Messaging service layer
+- Notification service layer
+
+## Integration rules
+
+Every feature must use the correct shared architecture.
+
+Do not create multiple unrelated:
+
+- API base URLs
+- Authentication systems
+- Database connections
+- AI clients
+- Permission systems
+- User models
+- Notification systems
+
+Ensure frontend, backend, database, AI, and external services are connected correctly.
+
+---
+
+# 7. PHASE 4 — COMPLETE SENIOR ONBOARDING
+
+Implement a complete onboarding experience.
+
+## Splash screen
+
+Show:
+
+- Buddy Elder AI branding
+- Friendly welcome
+- "Stay Safe. Live Confidently."
+- Get Started
+- Loading and error states
+
+## Language selection
+
+Support:
+
+- English
+- Hindi
+- Marathi
+- Hinglish
+
+Requirements:
+
+- Translate important UI content.
+- Save the selected language.
+- Allow language changes from settings.
+- AI replies in the selected language.
+- Voice output uses the selected language where supported.
+- Changing languages must not require restarting the application.
+
+## Role selection
+
+Roles:
+
+- Senior
+- Family / Caregiver
+
+Enforce permissions through the backend, not only the frontend.
+
+## Voice setup
+
+Provide:
+
+- Enable or disable voice
+- Speech speed
+- Slow, normal, fast options
+- Voice selection where supported
+- Voice preview
+- Speech recognition settings
+- Text-to-speech settings
+
+Save user preferences.
+
+---
+
+# 8. PHASE 5 — SENIOR HOME DASHBOARD
+
+Create a simple senior-friendly dashboard.
+
+Main features:
+
+1. AI Buddy
+2. Is This Safe?
+3. Read This
+4. Daily Check-in
+5. Family
+6. Call My Family
+7. Learn Technology
+8. Reminders
+9. Help
+10. Settings
+
+Requirements:
+
+- Large readable text
+- Large buttons
+- Simple navigation
+- Voice accessibility
+- Clear labels
+- Minimal cognitive complexity
+- Responsive design
+
+Each button must navigate to a real feature.
+
+---
+
+# 9. PHASE 6 — FULLY FUNCTIONAL AI BUDDY
+
+Implement a real conversational AI agent.
+
+It must not return the same generic response for unrelated questions.
+
+## AI capabilities
+
+- Understand questions.
+- Generate contextual responses.
+- Maintain conversation context.
+- Support conversation history.
+- Ask clarifying questions.
+- Give step-by-step instructions.
+- Explain technical topics simply.
+- Support English, Hindi, Marathi, and Hinglish.
+- Respect user language preferences.
+- Remember appropriate user preferences only.
+- Provide useful follow-up suggestions.
+- Acknowledge uncertainty.
+- Avoid fabricating information.
+
+## Example use cases
+
+- How to use WhatsApp?
+- How to send a photo?
+- How to make a video call?
+- How to use Google Maps?
+- How do I recharge my mobile?
+- How do I increase my phone volume?
+- What does this message mean?
+- How do I identify a scam?
+- How do I contact my family?
+- How can I stay safe online?
+
+## AI chat features
+
+- Text chat
+- Voice input
+- Read response aloud
+- Stop speaking
+- Repeat response
+- Conversation history
+- New conversation
+- Delete conversation
+- Clear conversation
+- Language selection
+- Retry
+- Loading states
+- Error states
+- Context-aware follow-up
+- Persistent history
+
+AI calls must be handled through the secure backend.
+
+Never expose provider API keys in frontend code.
+
+Use the existing AI provider and model configuration where available.
+
+If the provider is unavailable, show a real error and retry option instead of pretending the AI responded.
+
+---
+
+# 10. PHASE 7 — DIGITAL EDUCATION
+
+Create a technology-learning module.
+
+Topics may include:
+
+- Smartphone basics
+- Phone settings
+- WhatsApp
+- Sending photos
+- Video calls
+- Email
+- Internet browsing
+- Google Maps
+- Online payments safety
+- QR codes
+- Mobile recharge
+- Password safety
+- OTP safety
+- Digital fraud awareness
+
+Requirements:
+
+- Beginner-friendly lessons
+- Step-by-step instructions
+- Large text
+- Audio guidance where supported
+- Progress tracking
+- Completed lessons
+- Resume learning
+- Save progress to the database
+- Dashboard progress updates
+- Persistent progress after refresh
+
+Do not use fake progress.
+
+---
+
+# 11. PHASE 8 — SCAM DETECTION AND SAFETY
+
+Implement a real scam-analysis feature.
+
+Accept:
+
+- SMS
+- WhatsApp text
+- Emails
+- Websites
+- URLs
+- Phone numbers
+- Suspicious payment requests
+- Screenshots if supported
+- Unknown offers
+- Job offers
+- Investment offers
+
+Detect possible:
+
+- Phishing
+- OTP scams
+- UPI scams
+- Bank fraud
+- Fake government messages
+- Fake customer support
+- Impersonation
+- Urgent money requests
+- Lottery fraud
+- Investment scams
+- Job scams
+- Delivery scams
+- Remote access scams
+- Threats
+- Social engineering
+
+## Risk levels
+
+### GREEN — No obvious risk found
+
+Clearly state that the assessment cannot guarantee safety.
+
+### YELLOW — Be Careful
+
+Explain warning signs and what the user should verify.
+
+### RED — Likely Scam
+
+Provide instructions:
+
+- Do not click links.
+- Do not share OTPs.
+- Do not share passwords.
+- Do not share bank PINs.
+- Do not send money.
+- Do not install unknown applications.
+- Do not share banking information.
+- Verify using official contact details.
+- Ask trusted family for assistance.
+
+Display:
+
+- Risk level
+- Explanation
+- Warning indicators
+- Recommended actions
+- Safe next steps
+- Call family option
+
+Do not claim the analysis is 100% accurate.
+
+---
+
+# 12. PHASE 9 — PAUSE AND THINK SAFETY FEATURE
+
+Implement a safety pause when suspicious urgent requests are detected.
+
+Features:
+
+- Calm warning
+- 30-second pause where appropriate
+- Explanation
+- Do not rush guidance
+- Verification guidance
+- Call family button
+- Report suspicious content
+- Return to home
+
+Do not delay emergency medical or safety assistance.
+
+---
+
+# 13. PHASE 10 — CALL SAFETY
+
+Provide simple instructions for:
+
+- Suspicious calls
+- Fake bank calls
+- OTP requests
+- Payment demands
+- Unknown callers
+- Remote access applications
+- Threats
+- Fake officials
+
+Provide actions:
+
+- End suspicious call
+- Do not share information
+- Do not send money
+- Contact family
+- Contact official institution
+- Report suspicious message
+- Get help
+
+Call buttons must use valid configured contact numbers.
+
+Do not fabricate phone numbers.
+
+---
+
+# 14. PHASE 11 — AUDIO READER
+
+Implement a text and document reader.
+
+Features:
+
+- Paste text
+- Upload supported documents
+- Read aloud
+- Pause
+- Resume
+- Stop
+- Repeat
+- Change speed
+- Skip forward where supported
+- Go back where supported
+- Text highlighting where supported
+- Language selection
+- Large controls
+
+Handle unsupported formats and failures honestly.
+
+Do not display controls that are not functional.
+
+---
+
+# 15. PHASE 12 — DAILY CHECK-IN
+
+Create a daily wellness check-in.
+
+Ask:
+
+"How are you today?"
+
+Options:
+
+- Good
+- Okay
+- Not Good
+
+Optional questions:
+
+- Have you taken your regular medication?
+- Do you need help today?
+- Would you like to speak to family?
+- Do you feel safe?
+
+Allow questions to be skipped.
+
+Save:
+
+- User ID
+- Date
+- Timestamp
+- Answers
+- Optional note
+
+Requirements:
+
+- Persistent database storage
+- History
+- Confirmation
+- Duplicate handling
+- Dashboard updates
+- Permission-controlled family visibility
+
+Do not make medical diagnoses.
+
+---
+
+# 16. PHASE 13 — FAMILY PERMISSION CENTRE
+
+The senior must control sharing.
+
+Sharing levels:
+
+### Minimal
+
+Limited safety information only.
+
+### Balanced
+
+Selected check-ins and alerts.
+
+### Full
+
+Additional information specifically approved by the senior.
+
+Individual permissions must be configurable.
+
+Possible permissions:
+
+- Check-in status
+- Check-in responses
+- Wellness summaries
+- Safety alerts
+- Scam alerts
+- Reminder status
+- Activity summaries
+- AI summaries
+- Contact information
+
+Never automatically share private AI conversation content.
+
+Provide:
+
+- Authorized family members
+- Sharing level
+- Permission settings
+- Permission history
+- Revoke access
+- Request review
+- Pending sharing requests
+
+Permission changes must take effect immediately.
+
+Backend authorization must enforce these rules.
+
+---
+
+# 17. PHASE 14 — SENIOR SETTINGS AND ACCESSIBILITY
+
+Implement:
+
+- Language
+- Text size
+- Contrast
+- Light mode
+- Dark mode
+- Voice
+- Speech speed
+- Notifications
+- Family sharing
+- Emergency contacts
+- Privacy
+- Account settings
+- Data export
+- Delete account
+- Logout
+
+## Accessibility
+
+Provide:
+
+- Small, normal, large, and extra-large text
+- High-contrast mode
+- Large touch targets
+- Keyboard navigation
+- Visible focus indicators
+- Screen-reader support
+- Semantic controls
+- Accessible labels
+- Reduced motion
+- Simple wording
+- No color-only status information
+
+---
+
+# 18. PHASE 15 — CAREGIVER APPLICATION
+
+Implement a separate secure caregiver experience.
+
+## Caregiver authentication
+
+- Login
+- Registration where allowed
+- Forgot password
+- Reset password
+- Invitation code
+- Link senior
+- Secure session
+
+## Caregiver dashboard
+
+Display only permitted information:
+
+- Senior profile
+- Last check-in
+- Check-in status
+- Authorized wellness summary
+- Alert count
+- Recent authorized activity
+
+## Alerts
+
+Types:
+
+- Safety alert
+- Scam alert
+- Assistance request
+- Missed check-in if permitted
+- Reminder
+- Sharing request
+
+Filters:
+
+- All
+- Critical
+- Warning
+- Informational
+
+## Alert details
+
+Show:
+
+- Title
+- Severity
+- Date
+- Description
+- Explanation
+- Recommended action
+- Contact senior
+- Mark reviewed
+- Resolution status
+
+## Wellness summaries
+
+Show permitted information:
+
+- Check-in history
+- Weekly summary
+- Completion rate
+- Authorized indicators
+- Trends
+
+Do not diagnose medical conditions.
+
+## Reminders
+
+Allow authorized caregivers to create:
+
+- Drink water
+- Take a walk
+- Appointment reminder
+- Call family
+- Check in
+- Custom reminder
+
+Support:
+
+- Scheduling
+- Delivery status
+- Reminder history
+- Text reminders
+- Voice reminders where supported
+- Retry and failure handling
+
+## Sharing requests
+
+Family may request more access.
+
+Workflow:
+
+1. Caregiver requests permission.
+2. Backend stores request.
+3. Senior sees request.
+4. Senior approves or rejects.
+5. Backend updates permissions.
+6. Caregiver receives result.
+
+Caregivers cannot grant themselves access.
+
+---
+
+# 19. PHASE 16 — ALERTS AND NOTIFICATIONS
+
+Implement reliable alerts.
+
+Alert types:
+
+- Scam alert
+- Safety alert
+- Assistance request
+- Missed check-in
+- Reminder
+- Permission request
+- System notification
+
+Severity:
+
+- Critical
+- Warning
+- Informational
+
+Requirements:
+
+- Database persistence
+- Duplicate prevention
+- Delivery status
+- Read/unread status
+- Resolution status
+- Notification preferences
+- Real-time updates where appropriate
+- Retry where supported
+- Failure handling
+- Permission-aware notification content
+
+Never disclose private information without authorization.
+
+---
+
+# 20. PHASE 17 — SENIOR MESSAGING ONBOARDING
+
+This requirement is critical and must follow the messaging provider's feedback.
+
+## CRITICAL INITIATION RULE
+
+**The first message must be initiated by the senior from the senior's own phone number.**
+
+A family member or caregiver may help the senior physically use their phone.
+
+However:
+
+- The caregiver must not send the first message from their own personal number.
+- The senior's number must initiate the conversation.
+- The first message must be `HELLO`.
+- Continue using the existing CLI integration.
+- Do not migrate to a dedicated production messaging line yet.
+
+## Onboarding options
+
+### OPTION A — I AM SETTING IT UP MYSELF
+
+Display simple instructions:
+
+1. Open the Messages app on YOUR phone.
+2. Start a new message.
+3. Enter the configured Buddy Elder AI number.
+4. Type `HELLO`.
+5. Press Send.
+
+Explain:
+
+"Your first message must come from your own phone number."
+
+### OPTION B — MY FAMILY MEMBER OR CAREGIVER IS HELPING
+
+Instructions:
+
+1. Ask the senior to use their own phone.
+2. Help them open Messages.
+3. Enter the Buddy Elder AI number.
+4. Type `HELLO`.
+5. Help them send the message from their own phone.
+6. Explain that the first message must come from the senior's phone number, not the caregiver's personal phone.
+
+## Onboarding card
+
+Heading:
+
+"Start Using Buddy Elder AI"
+
+Message:
+
+"Let's connect you with Buddy Elder AI!
+
+Step 1: Open the Messages app on YOUR phone.
+
+Step 2: Send a message to the Buddy Elder AI number.
+
+Step 3: Type HELLO.
+
+Step 4: Press Send.
+
+Important: Your first message must come from your own phone number. A family member can help you, but please send the message from your phone."
+
+Make HELLO visually prominent.
+
+## Phone number configuration
+
+Use existing project configuration.
+
+Never invent a phone number.
+
+If the number is not configured, display:
+
+"Buddy Elder AI's messaging number is not configured yet. Please contact the administrator."
+
+Provide:
+
+- Copy number
+- Tap-to-message where supported
+- Copy HELLO
+- Help
+- Retry
+- Disconnect
+
+Tap-to-message must open the user's messaging application.
+
+Never automatically send messages.
+
+## Onboarding status
+
+Use:
+
+- Not Started
+- Instructions Viewed
+- Ready to Send HELLO
+- Message Sent — User Confirmed
+- Conversation Activated — Backend Verified
+
+Do not mark a conversation activated simply because instructions were viewed.
+
+If backend verification exists, use the actual verification mechanism.
+
+If verification is unavailable, use an honest user-confirmed status.
+
+Do not fabricate delivery or activation.
+
+## Setup help
+
+Include:
+
+- Use your own phone.
+- Check network connectivity.
+- Verify the messaging number.
+- Ensure you pressed Send.
+- Ask a caregiver for help.
+- Retry if no response.
+- Explain what to do if the assistant does not respond.
+
+## Integration
+
+- Inspect the existing messaging CLI.
+- Preserve existing functionality.
+- Reuse the current messaging integration.
+- Do not create an unrelated messaging service.
+- Do not expose credentials.
+- Keep the CLI available for development.
+- Do not migrate to a dedicated messaging line.
+- Clearly show configuration status.
+
+---
+
+# 21. PHASE 18 — DATABASE
+
+Inspect the current database first.
+
+Reuse and safely extend existing schema.
+
+Ensure appropriate data structures for:
+
+- Users
+- Senior profiles
+- Caregiver profiles
+- Family relationships
+- Invitations
+- Permissions
+- Permission requests
+- Conversations
+- Messages
+- AI interactions
+- Check-ins
+- Wellness records
+- Scam assessments
+- Alerts
+- Reminders
+- Reminder deliveries
+- Notifications
+- Emergency contacts
+- User settings
+- Audit logs
+- Messaging onboarding
+- Connected phone numbers
+
+Requirements:
+
+- Foreign keys
+- Validation
+- Indexes
+- Migrations
+- Timestamps
+- Appropriate deletion policies
+- Data integrity
+- Secure access controls
+
+Do not lose existing data.
+
+Never store plaintext passwords.
+
+---
+
+# 22. PHASE 19 — BACKEND API
+
+Inspect existing API structure.
+
+Implement or repair API endpoints for:
+
+## Authentication
+
+- Register
+- Login
+- Logout
+- Refresh session where applicable
+- Forgot password
+- Reset password
+- Verification
+
+## Senior
+
+- Profile
+- Settings
+- Check-ins
+- AI chat
+- Conversations
+- Scam detection
+- Audio reader
+- Emergency contacts
+- Family permissions
+- Alerts
+- Messaging onboarding
+
+## Caregiver
+
+- Dashboard
+- Link senior
+- Authorized senior information
+- Check-in summaries
+- Alerts
+- Reminders
+- Sharing requests
+- Wellness summaries
+
+## Permissions
+
+- Read permissions
+- Update permissions
+- Request access
+- Approve
+- Reject
+- Revoke
+
+## Notifications
+
+- Create
+- Read
+- Mark read
+- Preferences
+
+All APIs must include appropriate:
+
+- Authentication
+- Authorization
+- Validation
+- Rate limiting
+- Error handling
+- Logging
+
+---
+
+# 23. PHASE 20 — SECURITY
+
+Implement:
+
+- Password hashing
+- Secure authentication
+- Secure token/session handling
+- Role-based access control
+- Permission-based data access
+- Input validation
+- Output validation
+- Rate limiting
+- Secure headers
+- CORS
+- CSRF protection where appropriate
+- Secret management
+- Audit logging
+- File upload validation
+- Database security
+- Protection against unauthorized senior access
+- Protection against caregiver privilege escalation
+
+Never expose:
+
+- API keys
+- Service-role keys
+- JWT secrets
+- Database credentials
+- Private user data
+- Internal error traces
+
+Frontend environment variables must never contain server secrets.
+
+---
+
+# 24. PHASE 21 — AI SAFETY
+
+Buddy Elder AI is an educational and assistance tool, not a replacement for:
+
+- Medical professionals
+- Emergency services
+- Financial institutions
+- Police
+- Legal professionals
+
+AI must:
+
+- Acknowledge uncertainty.
+- Avoid medical diagnosis.
+- Avoid guaranteeing scam detection.
+- Avoid dangerous financial instructions.
+- Never request OTPs or passwords.
+- Never request banking PINs.
+- Never perform irreversible actions without authorization.
+- Recommend trusted sources.
+- Encourage human assistance where appropriate.
+- Give emergency guidance appropriately.
+
+---
+
+# 25. PHASE 22 — UI AND DESIGN
+
+Follow the existing Buddy Elder AI branding and reference design.
+
+## Senior interface
+
+Use:
+
+- Warm
+- Calm
+- Friendly
+- Accessible
+- High contrast
+- Large text
+- Large buttons
+- Simple navigation
+- Clear labels
+- Generous spacing
+
+Avoid:
+
+- Crowded layouts
+- Small text
+- Excessive menus
+- Technical language
+- Hidden controls
+- Complicated forms
+- Excessive animations
+
+## Caregiver interface
+
+Use:
+
+- Professional
+- Clean
+- Modern
+- Trustworthy
+- Clear dashboard
+- Cards
+- Charts where useful
+- Alert indicators
+- Responsive navigation
+
+Support:
+
+- Mobile
+- Tablet
+- Desktop
+
+Use the existing design system.
+
+Do not redesign unrelated areas unnecessarily.
+
+---
+
+# 26. PHASE 23 — ERROR HANDLING
+
+Implement clear handling for:
+
+- Network failures
+- AI provider failures
+- Authentication failures
+- Expired sessions
+- Database failures
+- Invalid inputs
+- Permission denied
+- File uploads
+- Speech recognition
+- Text-to-speech
+- Notifications
+- Messaging
+- Missing configuration
+
+Requirements:
+
+- User-friendly error messages
+- Retry where appropriate
+- Loading states
+- Empty states
+- Logging
+- No silent failures
+- No sensitive information in logs
+- Honest integration status
+
+---
+
+# 27. PHASE 24 — AUTOMATED TESTING
+
+Create and execute tests.
+
+## Authentication tests
+
+- Registration
+- Login
+- Invalid login
+- Logout
+- Protected routes
+- Session persistence
+- Session expiry
+
+## Authorization tests
+
+- Senior permissions
+- Caregiver permissions
+- Admin permissions
+- Unauthorized data access
+- Cross-user data access
+- Permission revocation
+- Privilege escalation prevention
+
+## AI tests
+
+Test different questions and verify contextual responses.
+
+Examples:
+
+- WhatsApp tutorial
+- Phone volume
+- Scam message
+- Google Maps
+- Family contact
+
+Verify:
+
+- Context
+- Language
+- History
+- Error handling
+- Safety responses
+
+## Scam detection tests
+
+Test:
+
+- Normal message
+- Suspicious link
+- OTP request
+- Urgent payment
+- Bank impersonation
+- Fake government message
+- Investment scam
+- Job scam
+
+## Check-in tests
+
+- Creation
+- Persistence
+- History
+- Duplicate handling
+- Permission-aware visibility
+
+## Alerts tests
+
+- Creation
+- Duplicate prevention
+- Read status
+- Resolution
+- Authorization
+- Notification handling
+
+## Reminders tests
+
+- Creation
+- Scheduling
+- Delivery
+- History
+- Failure
+- Retry
+
+## Messaging tests
+
+- Number configured
+- Number missing
+- Copy number
+- Copy HELLO
+- Self setup
+- Caregiver-assisted setup
+- Senior-owned number initiation requirement
+- Status transitions
+- Verification
+- No false activation
+- No automatic sending
+
+## UI tests
+
+- Navigation
+- Buttons
+- Forms
+- Responsive design
+- Accessibility
+- Error states
+- Loading states
+- Empty states
+
+---
+
+# 28. PHASE 25 — INTEGRATION VERIFICATION
+
+For each feature, verify the complete flow:
+
+FRONTEND
+→ API
+→ AUTHENTICATION
+→ AUTHORIZATION
+→ BACKEND SERVICE
+→ DATABASE OR EXTERNAL PROVIDER
+→ RESPONSE
+→ FRONTEND UPDATE
+
+For features involving notifications, verify the notification delivery and status flow too.
+
+For features involving AI, verify the actual provider response.
+
+For features involving messaging, verify the actual supported status mechanism.
+
+For features involving permissions, verify unauthorized access is rejected by the backend.
+
+A UI button existing is not proof of a feature working.
+
+A successful API response is not proof that the whole workflow works.
+
+---
+
+# 29. PHASE 26 — REPAIR STRATEGY
+
+Fix in this order:
+
+## P0 — CRITICAL
+
+- Security problems
+- Data loss risks
+- Application crashes
+- Broken authentication
+- Exposed secrets
+- Unauthorized data access
+
+## P1 — CORE INTEGRATION
+
+- Frontend/backend communication
+- Database connection
+- AI provider
+- Authentication integration
+- Permissions
+- Core dashboards
+
+## P2 — FUNCTIONALITY
+
+- Broken features
+- Incomplete workflows
+- Missing API integrations
+- Messaging integration
+- Notifications
+- Persistence
+
+## P3 — ACCESSIBILITY AND UX
+
+- Responsive design
+- Accessibility
+- Navigation
+- Text size
+- Usability
+- Error states
+
+## P4 — OPTIMIZATION
+
+- Performance
+- Code cleanup
+- Dependency optimization
+- Logging improvements
+
+Fix one logical group at a time.
+
+Do not modify many unrelated modules simultaneously.
+
+---
+
+# 30. PHASE 27 — FINAL BUILD AND RELEASE VERIFICATION
+
+Before declaring completion:
+
+1. Install dependencies using the appropriate package manager.
+2. Verify environment configuration.
+3. Run database migrations.
+4. Run frontend tests.
+5. Run backend tests.
+6. Run integration tests.
+7. Run linting.
+8. Run the production build.
+9. Start the frontend.
+10. Start the backend.
+11. Verify API endpoints.
+12. Verify authentication.
+13. Verify database persistence.
+14. Verify AI provider integration.
+15. Verify messaging integration where credentials are available.
+16. Verify role permissions.
+17. Verify senior workflows.
+18. Verify caregiver workflows.
+19. Verify admin workflows if available.
+20. Verify mobile responsiveness.
+21. Verify production deployment if deployment access is available.
+
+Fix all reproducible errors caused by your changes.
+
+If pre-existing errors remain, document them honestly.
+
+---
+
+# 31. FINAL ACCEPTANCE CHECKLIST
+
+The application is considered complete only when all applicable items are verified:
+
+## Senior
+
+- [ ] Registration and login
+- [ ] Language selection
+- [ ] Onboarding
+- [ ] Voice settings
+- [ ] Accessible dashboard
+- [ ] AI chat
+- [ ] Contextual responses
+- [ ] Chat history
+- [ ] Voice input
+- [ ] Voice responses
+- [ ] Scam detection
+- [ ] Safety pause
+- [ ] Call family
+- [ ] Audio reader
+- [ ] Technology lessons
+- [ ] Lesson progress
+- [ ] Daily check-in
+- [ ] Reminders
+- [ ] Family permissions
+- [ ] Settings
+- [ ] Privacy
+- [ ] Logout
+
+## Caregiver
+
+- [ ] Login
+- [ ] Secure senior linking
+- [ ] Dashboard
+- [ ] Authorized information
+- [ ] Alerts
+- [ ] Alert details
+- [ ] Wellness summaries
+- [ ] Reminders
+- [ ] Sharing requests
+- [ ] Notifications
+- [ ] Settings
+
+## Messaging
+
+- [ ] Self setup
+- [ ] Caregiver-assisted setup
+- [ ] Senior's own phone requirement
+- [ ] HELLO instruction
+- [ ] Configured phone number
+- [ ] Missing number state
+- [ ] Copy number
+- [ ] Copy HELLO
+- [ ] Tap-to-message
+- [ ] Honest status
+- [ ] Backend verification where available
+- [ ] No fake activation
+- [ ] Existing CLI preserved
+
+## Backend
+
+- [ ] APIs work
+- [ ] Authentication works
+- [ ] Authorization works
+- [ ] Database works
+- [ ] Data persists
+- [ ] Migrations work
+- [ ] AI integration works
+- [ ] Error handling
+- [ ] Security
+- [ ] Notifications
+
+## Quality
+
+- [ ] No critical build errors
+- [ ] No broken routes
+- [ ] No fake buttons
+- [ ] No unfinished core placeholders
+- [ ] No mock data presented as real
+- [ ] No secrets exposed
+- [ ] Responsive layout
+- [ ] Accessibility verified
+- [ ] Tests executed
+- [ ] Production build verified
+
+---
+
+# 32. EXECUTION MODE — IMPORTANT
+
+Do not stop at the audit.
+
+Do not stop at the plan.
+
+Do not merely create documentation.
+
+Do not ask me to manually implement the fixes you can implement yourself.
+
+Continue working through the phases systematically.
+
+If you encounter missing credentials:
+
+1. Continue implementing everything that can be implemented without those credentials.
+2. Create secure configuration handling.
+3. Create a clear setup guide.
+4. Display a genuine integration status.
+5. Do not fake successful external integration.
+6. Continue with other tasks that are not blocked.
+
+If a task is too large:
+
+- Break it into smaller tasks.
+- Update tasks.md.
+- Complete one task at a time.
+- Test after each task.
+- Continue with the next task.
+
+If you encounter an error:
+
+1. Read the actual error.
+2. Identify its root cause.
+3. Inspect the affected files.
+4. Fix the root cause.
+5. Run the relevant test again.
+6. Verify that the fix works.
+7. Check for regressions.
+
+If you reach a tool, context, or execution limit:
+
+- Save all progress.
+- Update tasks.md.
+- Update memory.md.
+- Record what was completed.
+- Record what remains.
+- Record the exact next task.
+- Do not falsely report the project as complete.
+
+---
+
+# 33. FINAL REPORT
+
+When the implementation and verification process is finished, provide:
+
+## 1. Project status
+
+- Overall completion status
+- Stable or unstable
+- Ready for local testing or not
+- Ready for deployment or not
+
+## 2. Audit findings
+
+- Problems discovered
+- Broken integrations
+- Missing features
+- Security issues
+- Duplicate components
+
+## 3. Repairs completed
+
+List every major problem fixed.
+
+## 4. Features implemented
+
+List features actually implemented.
+
+## 5. Integration status
+
+Report frontend, backend, database, AI, messaging, authentication, authorization, and notification integration.
+
+## 6. Files changed
+
+List important files created, modified, or removed, explaining removals.
+
+## 7. Database changes
+
+Explain schema changes and migrations.
+
+## 8. Testing
+
+Report:
+
+- Tests executed
+- Passed
+- Failed
+- Not executed
+- Why
+
+## 9. Build status
+
+Report the actual build result.
+
+## 10. Configuration
+
+List required environment variable NAMES only.
+
+Never print secrets.
+
+## 11. Local run instructions
+
+Provide exact commands for the actual repository.
+
+## 12. Deployment
+
+Provide deployment status and remaining requirements.
+
+## 13. Remaining issues
+
+List every remaining issue honestly.
+
+## 14. Final verified checklist
+
+Only mark items verified when they have actually been tested.
+
+---
+
+# FINAL INSTRUCTION
+
+Start by inspecting the existing repository.
+
+Then create a complete audit.
+
+Then establish a safe checkpoint.
+
+Then fix the most critical existing issues.
+
+Then integrate every existing feature.
+
+Then implement missing required functionality.
+
+Then test everything.
+
+Then fix test failures.
+
+Then verify the production build.
+
+Then update documentation and tasks.
+
+**Do not rebuild Buddy Elder AI from scratch. Do not abandon existing working features. Do not add unnecessary new features. Do not pretend something works. Do not stop after generating a plan.**
+
+My goal is to have ONE unified Buddy Elder AI application where the senior app, caregiver app, AI agent, messaging onboarding, authentication, backend, database, permissions, notifications, accessibility, and safety features work together properly.
+
+Work as a professional engineering team and complete the project systematically.   Continue working on the existing Buddy Elder AI project from your previous progress.
+
+First, read tasks.md, memory.md, INTEGRATION_AUDIT.md, and TESTING_REPORT.md, along with the actual source files relevant to the next task.
+
+Do not restart the project. Do not rebuild it from scratch. Do not repeat completed tasks.
+
+Identify the highest-priority unfinished task and continue implementing it directly.
+
+For each task:
+
+1. Inspect the actual implementation.
+2. Identify the root cause.
+3. Fix the issue.
+4. Integrate it with existing frontend, backend, APIs, and database.
+5. Run relevant tests.
+6. Fix failures.
+7. Verify that existing features still work.
+8. Update tasks.md and memory.md.
+9. Proceed to the next unfinished task.
+
+Do not mark features complete without actual verification.
+
+Continue until all tasks are completed or genuinely blocked by missing credentials, external access, or tool limitations.
+
+If something is blocked, document the exact reason and continue with other unblocked tasks.
+
+At the end of this session, report the exact tasks completed, tests run, failures, remaining tasks, and the next action.
+
+Your goal is to complete the existing Buddy Elder AI application, not just provide advice.

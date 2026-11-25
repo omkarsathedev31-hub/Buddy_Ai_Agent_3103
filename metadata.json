@@ -1,0 +1,6 @@
+{
+  "name": "Buddy Elder AI",
+  "description": "Stay Safe. Live Confidently. Accessible senior assistance, AI companion, scam protection, digital learning, and permission-controlled family caregiver platform.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
