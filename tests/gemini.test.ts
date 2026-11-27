@@ -40,8 +40,8 @@ let missingModel = false;
 let failingModels: Record<string, { status: number; body: Record<string, unknown> }> = {};
 let transientFailCounts: Record<string, { remaining: number; status: number; body: Record<string, unknown> }> = {};
 let mockListedModels: Array<{ name: string; supportedActions?: string[] }> = [
-  { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
-  { name: 'models/gemini-2.5-flash-lite', supportedActions: ['generateContent'] },
+  { name: 'models/gemini-4-hydrogen', supportedActions: ['generateContent'] },
+  { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
 ];
 let modelCalls: string[] = [];
 const mock = http.createServer((req, res) => {
@@ -488,7 +488,7 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
     // 1. Primary quota exceeded -> automatically switches once to fallback and succeeds
     modelCalls = [];
     failingModels = {
-      'gemini-2.5-flash': {
+      'gemini-3.1-flash-lite': {
         status: 429,
         body: {
           error: {
@@ -505,16 +505,16 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
       language: 'en',
       userName: 'Meera',
     });
-    assert.equal(resQuotaFallback.model, 'gemini-2.5-flash-lite');
+    assert.equal(resQuotaFallback.model, 'gemini-4-hydrogen');
     assert.equal(resQuotaFallback.fallbackUsed, true);
-    assert.deepEqual(resQuotaFallback.attemptedModels, ['gemini-2.5-flash', 'gemini-2.5-flash-lite']);
-    assert.deepEqual(modelCalls, ['gemini-2.5-flash', 'gemini-2.5-flash-lite']);
+    assert.deepEqual(resQuotaFallback.attemptedModels, ['gemini-3.1-flash-lite', 'gemini-4-hydrogen']);
+    assert.deepEqual(modelCalls, ['gemini-3.1-flash-lite', 'gemini-4-hydrogen']);
     assert.match(resQuotaFallback.reply, /How do I connect Bluetooth\?/);
 
     // 2. Primary 503 temporary service unavailable -> switches ONCE immediately with zero duplicate AI calls
     modelCalls = [];
     failingModels = {
-      'gemini-2.5-flash': {
+      'gemini-3.1-flash-lite': {
         status: 503,
         body: { error: { code: 503, message: 'Service temporarily overloaded', status: 'UNAVAILABLE' } },
       },
@@ -525,9 +525,9 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
       language: 'en',
       userName: 'Meera',
     });
-    assert.equal(res503Fallback.model, 'gemini-2.5-flash-lite');
+    assert.equal(res503Fallback.model, 'gemini-4-hydrogen');
     assert.equal(res503Fallback.fallbackUsed, true);
-    assert.deepEqual(modelCalls, ['gemini-2.5-flash', 'gemini-2.5-flash-lite']);
+    assert.deepEqual(modelCalls, ['gemini-3.1-flash-lite', 'gemini-4-hydrogen']);
 
     // 3. Permanent invalid-key error -> NEVER tries fallback model
     modelCalls = [];
@@ -543,7 +543,7 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
         }),
       (err: any) => err.code === 'AI_AUTH_ERROR' && err.fallbackAttempted === false
     );
-    assert.deepEqual(modelCalls, ['gemini-2.5-flash']);
+    assert.deepEqual(modelCalls, ['gemini-3.1-flash-lite']);
 
     // 4. End-to-end chat route: when BOTH primary and fallback hit daily quota,
     // user question is STILL saved in SQLite, friendly elderly message is returned, and retries do not duplicate messages
@@ -565,11 +565,11 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
     const convId = conv.data.conversation.id as string;
 
     failingModels = {
-      'gemini-2.5-flash': {
+      'gemini-3.1-flash-lite': {
         status: 429,
         body: { error: { code: 429, message: 'Daily quota limit: 0', status: 'RESOURCE_EXHAUSTED' } },
       },
-      'gemini-2.5-flash-lite': {
+      'gemini-4-hydrogen': {
         status: 429,
         body: { error: { code: 429, message: 'Daily quota limit: 0', status: 'RESOURCE_EXHAUSTED' } },
       },
@@ -585,7 +585,7 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
     assert.equal(failBoth.data.conversationStatus, 'failed');
     assert.equal(failBoth.data.userMessageSaved, true);
     assert.equal(failBoth.data.userMessage?.content, 'How do I turn on flashlight?');
-    assert.deepEqual(failBoth.data.attemptedModels, ['gemini-2.5-flash', 'gemini-2.5-flash-lite']);
+    assert.deepEqual(failBoth.data.attemptedModels, ['gemini-3.1-flash-lite', 'gemini-4-hydrogen']);
     assert.equal(failBoth.data.error?.message, FRIENDLY_AI_QUOTA_MESSAGE);
 
     // Verify user question and conversation failed status persisted in DB immediately despite 429 failure
@@ -598,7 +598,7 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
 
     // Retry when fallback recovers -> does NOT duplicate user message, appends assistant reply, and clears failure status
     failingModels = {
-      'gemini-2.5-flash': {
+      'gemini-3.1-flash-lite': {
         status: 429,
         body: { error: { code: 429, message: 'Daily quota limit: 0', status: 'RESOURCE_EXHAUSTED' } },
       },
@@ -609,7 +609,7 @@ test('model fallback switches to GEMINI_FALLBACK_MODEL on quota/503/404 without 
       body: { message: 'How do I turn on flashlight?', language: 'en' },
     });
     assert.equal(retryRecover.status, 200, retryRecover.raw);
-    assert.equal(retryRecover.data.model, 'gemini-2.5-flash-lite');
+    assert.equal(retryRecover.data.model, 'gemini-4-hydrogen');
     assert.equal(retryRecover.data.fallbackUsed, true);
     assert.equal(retryRecover.data.conversationStatus, 'responded');
 
@@ -650,7 +650,7 @@ test('verified model discovery filters deprecated/non-text models and transient 
     { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
     { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
   ]);
-  assert.deepEqual(ranked, ['gemini-2.5-flash', 'gemini-4-hydrogen', 'gemini-3.1-flash-lite']);
+  assert.deepEqual(ranked, ['gemini-3.1-flash-lite', 'gemini-4-hydrogen', 'gemini-2.5-flash']);
 
   // 2. Retry delay respects max retry limit (no infinite loops)
   const transient503Err = Object.assign(
@@ -667,21 +667,21 @@ test('verified model discovery filters deprecated/non-text models and transient 
 
   try {
     // 3. When primary + configured fallback both hit 503 UNAVAILABLE, verified model discovery
-    // routes cleanly to an available listed model (gemini-4-hydrogen)
+    // routes cleanly to an available listed model (gemini-2.5-flash)
     clearModelDiscoveryCacheForTests();
     modelCalls = [];
     mockListedModels = [
       { name: 'models/gemini-1.5-flash', supportedActions: ['generateContent'] },
-      { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
-      { name: 'models/gemini-2.5-flash-lite', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
       { name: 'models/gemini-4-hydrogen', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
     ];
     failingModels = {
-      'gemini-2.5-flash': {
+      'gemini-3.1-flash-lite': {
         status: 503,
         body: { error: { code: 503, message: 'High demand', status: 'UNAVAILABLE' } },
       },
-      'gemini-2.5-flash-lite': {
+      'gemini-4-hydrogen': {
         status: 503,
         body: { error: { code: 503, message: 'High demand', status: 'UNAVAILABLE' } },
       },
@@ -693,12 +693,12 @@ test('verified model discovery filters deprecated/non-text models and transient 
       language: 'en',
       userName: 'Asha',
     });
-    assert.equal(recoveredViaDiscovery.model, 'gemini-4-hydrogen');
+    assert.equal(recoveredViaDiscovery.model, 'gemini-2.5-flash');
     assert.equal(recoveredViaDiscovery.fallbackUsed, true);
     assert.deepEqual(recoveredViaDiscovery.attemptedModels, [
-      'gemini-2.5-flash',
-      'gemini-2.5-flash-lite',
+      'gemini-3.1-flash-lite',
       'gemini-4-hydrogen',
+      'gemini-2.5-flash',
     ]);
 
     // 4. When all candidates transiently return 503 once, bounded exponential backoff + jitter
@@ -707,16 +707,16 @@ test('verified model discovery filters deprecated/non-text models and transient 
     failingModels = {};
     modelCalls = [];
     mockListedModels = [
-      { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
-      { name: 'models/gemini-2.5-flash-lite', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-4-hydrogen', supportedActions: ['generateContent'] },
     ];
     transientFailCounts = {
-      'gemini-2.5-flash': {
+      'gemini-3.1-flash-lite': {
         remaining: 1,
         status: 503,
         body: { error: { code: 503, message: 'Temporary overload', status: 'UNAVAILABLE' } },
       },
-      'gemini-2.5-flash-lite': {
+      'gemini-4-hydrogen': {
         remaining: 1,
         status: 503,
         body: { error: { code: 503, message: 'Temporary overload', status: 'UNAVAILABLE' } },
@@ -736,8 +736,8 @@ test('verified model discovery filters deprecated/non-text models and transient 
     failingModels = {};
     transientFailCounts = {};
     mockListedModels = [
-      { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
-      { name: 'models/gemini-2.5-flash-lite', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-4-hydrogen', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
     ];
     modelCalls = [];
     clearModelDiscoveryCacheForTests();
@@ -757,17 +757,17 @@ test('non-existent or deprecated model overrides (e.g. gemini-3.5-flash, gemini-
 
   try {
     assert.equal(normalizeFallbackGeminiModel('gemini-3.5-flash', 'gemini-3.1-flash-lite').invalidOverride, true);
-    assert.equal(normalizeFallbackGeminiModel('gemini-3.5-flash', 'gemini-3.1-flash-lite').model, 'gemini-2.5-flash');
+    assert.equal(normalizeFallbackGeminiModel('gemini-3.5-flash', 'gemini-3.1-flash-lite').model, 'gemini-4-hydrogen');
     assert.equal(normalizeGeminiModelName('gemini-3.8-flash').invalidOverride, true);
-    assert.equal(normalizeGeminiModelName('gemini-3.8-flash').model, 'gemini-2.5-flash');
+    assert.equal(normalizeGeminiModelName('gemini-3.8-flash').model, 'gemini-3.1-flash-lite');
     assert.equal(normalizeGeminiModelName('gemini-2.0-flash').invalidOverride, true);
-    assert.equal(normalizeGeminiModelName('gemini-1.5-flash').model, 'gemini-2.5-flash');
+    assert.equal(normalizeGeminiModelName('gemini-1.5-flash').model, 'gemini-3.1-flash-lite');
 
     const status = getAiStatus();
     assert.equal(status.model, 'gemini-3.1-flash-lite');
-    assert.equal(status.fallbackModel, 'gemini-2.5-flash');
+    assert.equal(status.fallbackModel, 'gemini-4-hydrogen');
     assert.ok(status.fallbackModelWarning);
-    assert.deepEqual(getCandidateGeminiModels(), ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-4-hydrogen']);
+    assert.deepEqual(getCandidateGeminiModels(), ['gemini-3.1-flash-lite', 'gemini-4-hydrogen']);
 
     modelCalls = [];
     failingModels = {
@@ -782,9 +782,9 @@ test('non-existent or deprecated model overrides (e.g. gemini-3.5-flash, gemini-
       language: 'en',
       userName: 'Meera',
     });
-    assert.equal(recovered.model, 'gemini-2.5-flash');
+    assert.equal(recovered.model, 'gemini-4-hydrogen');
     assert.equal(recovered.fallbackUsed, true);
-    assert.deepEqual(modelCalls, ['gemini-3.1-flash-lite', 'gemini-2.5-flash']);
+    assert.deepEqual(modelCalls, ['gemini-3.1-flash-lite', 'gemini-4-hydrogen']);
     assert.equal(modelCalls.includes('gemini-3.5-flash'), false);
   } finally {
     failingModels = {};
@@ -836,7 +836,6 @@ test('caches 404 NOT_FOUND models, promotes verified working discovered model, a
     assert.deepEqual(modelCalls, [
       'gemini-2.5-flash',
       'gemini-3.1-flash-lite',
-      'gemini-4-hydrogen',
       'gemini-3-flash-preview',
     ]);
 
@@ -853,20 +852,21 @@ test('caches 404 NOT_FOUND models, promotes verified working discovered model, a
 
     // 3. Phase 2 retry: if one transient target hits AI_QUOTA_EXHAUSTED on retry, continue retrying remaining 503 target
     clearModelDiscoveryCacheForTests();
+    delete process.env.GEMINI_MODEL;
     delete process.env.GEMINI_FALLBACK_MODEL;
     mockListedModels = [
-      { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
-      { name: 'models/gemini-2.5-flash-lite', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-4-hydrogen', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
     ];
     modelCalls = [];
     failingModels = {};
     transientFailCounts = {
-      'gemini-2.5-flash': {
-        remaining: 2, // fails in Phase 1 and on retry attempt 2 -> wait: retry attempt 1 hits lite, retry attempt 2 hits flash
+      'gemini-3.1-flash-lite': {
+        remaining: 2,
         status: 503,
         body: { error: { code: 503, message: 'Temporary overload', status: 'UNAVAILABLE' } },
       },
-      'gemini-2.5-flash-lite': {
+      'gemini-4-hydrogen': {
         remaining: 1,
         status: 503,
         body: { error: { code: 503, message: 'Temporary overload', status: 'UNAVAILABLE' } },
@@ -878,7 +878,7 @@ test('caches 404 NOT_FOUND models, promotes verified working discovered model, a
       language: 'en',
       userName: 'Meera',
     });
-    assert.equal(phase2Recovered.model, 'gemini-2.5-flash-lite');
+    assert.equal(phase2Recovered.model, 'gemini-4-hydrogen');
 
     // 4. Error prioritization: valid 503 model failure beats fallback 404 AI_MODEL_ERROR
     clearModelDiscoveryCacheForTests();
@@ -981,6 +981,58 @@ test('caches 404 NOT_FOUND models, promotes verified working discovered model, a
     mockListedModels = [
       { name: 'models/gemini-2.5-flash', supportedActions: ['generateContent'] },
       { name: 'models/gemini-2.5-flash-lite', supportedActions: ['generateContent'] },
+    ];
+    modelCalls = [];
+    clearModelDiscoveryCacheForTests();
+    delete process.env.GOOGLE_GEMINI_API_KEY;
+    delete process.env.GEMINI_MODEL;
+    delete process.env.GEMINI_FALLBACK_MODEL;
+  }
+});
+
+test('warmUpGeminiModelDiscovery pre-filters unverified static primary and fallback models so zero 404 NOT_FOUND requests occur', async () => {
+  const { warmUpGeminiModelDiscovery } = await import('../server/ai.ts');
+  process.env.GOOGLE_GEMINI_API_KEY = KEY_GOOD;
+  process.env.GEMINI_MODEL = 'gemini-2.5-flash';
+  process.env.GEMINI_FALLBACK_MODEL = 'gemini-2.5-flash-lite';
+
+  try {
+    clearModelDiscoveryCacheForTests();
+    modelCalls = [];
+    mockListedModels = [
+      { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
+    ];
+    failingModels = {
+      'gemini-2.5-flash': {
+        status: 404,
+        body: { error: { code: 404, message: 'models/gemini-2.5-flash is not found', status: 'NOT_FOUND' } },
+      },
+      'gemini-2.5-flash-lite': {
+        status: 404,
+        body: { error: { code: 404, message: 'models/gemini-2.5-flash-lite is not found', status: 'NOT_FOUND' } },
+      },
+      'gemini-4-hydrogen': {
+        status: 404,
+        body: { error: { code: 404, message: 'models/gemini-4-hydrogen is not found', status: 'NOT_FOUND' } },
+      },
+    };
+
+    const warmed = await warmUpGeminiModelDiscovery();
+    assert.deepEqual(warmed, ['gemini-3.1-flash-lite']);
+
+    const reply = await generateBuddyReply({
+      history: [],
+      userMessage: 'How do I check my messages?',
+      language: 'en',
+      userName: 'Meera',
+    });
+    assert.equal(reply.model, 'gemini-3.1-flash-lite');
+    assert.deepEqual(modelCalls, ['gemini-3.1-flash-lite']);
+  } finally {
+    failingModels = {};
+    mockListedModels = [
+      { name: 'models/gemini-4-hydrogen', supportedActions: ['generateContent'] },
+      { name: 'models/gemini-3.1-flash-lite', supportedActions: ['generateContent'] },
     ];
     modelCalls = [];
     clearModelDiscoveryCacheForTests();

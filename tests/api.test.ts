@@ -765,15 +765,15 @@ test('AI Buddy model payload parsing and Gemini error classification handle edge
   const { parseBuddyModelPayload, classifyGeminiError, getConfiguredGeminiModel, normalizeGeminiModelName, getAiStatus } =
     await import('../server/ai.ts');
 
-  assert.equal(getConfiguredGeminiModel(), 'gemini-2.5-flash');
+  assert.equal(getConfiguredGeminiModel(), 'gemini-3.1-flash-lite');
 
   // Invalid GEMINI_MODEL overrides (e.g. mistakenly pasted token or placeholder) fall back safely
   assert.deepEqual(normalizeGeminiModelName('AQ.SampleInvalidPastedTokenValue123'), {
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.1-flash-lite',
     invalidOverride: true,
   });
   assert.deepEqual(normalizeGeminiModelName('AIzaSyFakeKeyPastedIntoModelVar'), {
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.1-flash-lite',
     invalidOverride: true,
   });
   assert.deepEqual(normalizeGeminiModelName('models/gemini-3.1-flash-lite'), {
@@ -790,9 +790,9 @@ test('AI Buddy model payload parsing and Gemini error classification handle edge
   process.env.GEMINI_MODEL = 'AQ.MistakenTokenString';
   process.env.GEMINI_FALLBACK_MODEL = 'gemini-4-hydrogen';
   try {
-    assert.equal(getConfiguredGeminiModel(), 'gemini-2.5-flash');
+    assert.equal(getConfiguredGeminiModel(), 'gemini-3.1-flash-lite');
     const aiStatus = getAiStatus();
-    assert.equal(aiStatus.model, 'gemini-2.5-flash');
+    assert.equal(aiStatus.model, 'gemini-3.1-flash-lite');
     assert.equal(aiStatus.fallbackModel, 'gemini-4-hydrogen');
     assert.ok(aiStatus.modelWarning && !aiStatus.modelWarning.includes('AQ.MistakenTokenString'));
 
@@ -1793,6 +1793,132 @@ test('JWT signing, verification, tampered/expired rejection, browser-refresh Bea
     .get(hashToken(expiredJwt)) as { cnt: number };
   assert.equal(remainingExpired.cnt, 0);
 });
+
+test('3103-zb41 Vercel preview CORS, frontend VITE_API_BASE_URL resolution, and non-crashing Railway startup without DB volume', async () => {
+  const { isProjectVercelPreviewOrigin, isAllowedCorsOrigin } = await import('../server/app.ts');
+  const { resolveApiBase, DEFAULT_PRODUCTION_BACKEND_URL } = await import('../src/lib/api.ts');
+  const { closeDb } = await import('../server/db.ts');
+
+  // 1. Exact preview/production origins match securely over HTTPS only and never allow wildcard '*'
+  for (const allowed of [
+    'https://buddy-ai-agent-3103-zb41.vercel.app',
+    'https://buddy-ai-agent-3103.vercel.app',
+    'https://buddy-ai-agent-3103-git-main-om.vercel.app',
+    'https://buddy-ai-agent-31-1x82.vercel.app',
+  ]) {
+    assert.equal(isProjectVercelPreviewOrigin(new URL(allowed)), true, `Expected ${allowed} to be allowed`);
+    assert.equal(
+      isAllowedCorsOrigin(allowed, 'buddyaiagent3103-production.up.railway.app', {
+        NODE_ENV: 'production',
+        APP_URL: 'https://buddy-ai-agent-3103.vercel.app',
+        ALLOWED_ORIGINS: 'https://buddy-ai-agent-3103.vercel.app',
+      }),
+      true
+    );
+  }
+
+  for (const rejected of [
+    'http://buddy-ai-agent-3103-zb41.vercel.app',
+    'https://buddy-ai-agent-3103evil.vercel.app',
+    'https://evil-buddy-ai-agent-3103-zb41.vercel.app',
+    'https://evil.com',
+  ]) {
+    assert.equal(isProjectVercelPreviewOrigin(new URL(rejected)), false, `Expected ${rejected} to be rejected`);
+    assert.equal(
+      isAllowedCorsOrigin(rejected, 'buddyaiagent3103-production.up.railway.app', {
+        NODE_ENV: 'production',
+        ALLOWED_ORIGINS: '* ; https://buddy-ai-agent-3103.vercel.app',
+      }),
+      false
+    );
+  }
+
+  // 2. Frontend resolveApiBase accepts Railway HTTPS URL from buddy-ai-agent-3103-zb41.vercel.app
+  const zb41Loc = {
+    protocol: 'https:',
+    hostname: 'buddy-ai-agent-3103-zb41.vercel.app',
+    origin: 'https://buddy-ai-agent-3103-zb41.vercel.app',
+  };
+  assert.deepEqual(resolveApiBase('https://buddyaiagent3103-production.up.railway.app', zb41Loc, false), {
+    baseUrl: DEFAULT_PRODUCTION_BACKEND_URL,
+  });
+  assert.deepEqual(resolveApiBase('https://buddyaiagent3103-production.up.railway.app/', zb41Loc, false), {
+    baseUrl: DEFAULT_PRODUCTION_BACKEND_URL,
+  });
+  assert.deepEqual(resolveApiBase('', zb41Loc, false), {
+    baseUrl: DEFAULT_PRODUCTION_BACKEND_URL,
+  });
+
+  // 3. Railway boot without BUDDY_DB_PATH or RAILWAY_VOLUME_MOUNT_PATH binds HTTP, serves CORS, and returns JSON 503 (never 502/HTML crash)
+  const prevRailwayEnv = process.env.RAILWAY_ENVIRONMENT;
+  const prevDbPath = process.env.BUDDY_DB_PATH;
+  const prevVolumePath = process.env.RAILWAY_VOLUME_MOUNT_PATH;
+  const prevAllowEphemeral = process.env.BUDDY_ALLOW_EPHEMERAL_DB;
+  let srv: http.Server | undefined;
+
+  try {
+    closeDb();
+    delete process.env.BUDDY_ALLOW_EPHEMERAL_DB;
+    delete process.env.BUDDY_DB_PATH;
+    delete process.env.RAILWAY_VOLUME_MOUNT_PATH;
+    process.env.RAILWAY_ENVIRONMENT = 'production';
+
+    const unconfiguredApp = createApp();
+    const srvUrl = await new Promise<string>((resolve) => {
+      srv = unconfiguredApp.listen(0, '127.0.0.1', () => {
+        const addr = srv!.address() as { port: number };
+        resolve(`http://127.0.0.1:${addr.port}`);
+      });
+    });
+
+    const preflightRes = await fetch(`${srvUrl}/api/health`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://buddy-ai-agent-3103-zb41.vercel.app',
+        'Access-Control-Request-Method': 'GET',
+      },
+    });
+    assert.equal(preflightRes.status, 204);
+    assert.equal(preflightRes.headers.get('access-control-allow-origin'), 'https://buddy-ai-agent-3103-zb41.vercel.app');
+    assert.equal(preflightRes.headers.get('access-control-allow-credentials'), 'true');
+
+    const healthRes = await fetch(`${srvUrl}/api/health`, {
+      headers: { Origin: 'https://buddy-ai-agent-3103-zb41.vercel.app' },
+    });
+    assert.equal(healthRes.status, 503);
+    assert.ok((healthRes.headers.get('content-type') || '').includes('application/json'));
+    assert.equal(healthRes.headers.get('access-control-allow-origin'), 'https://buddy-ai-agent-3103-zb41.vercel.app');
+    const healthBody = (await healthRes.json()) as {
+      ok: boolean;
+      status: string;
+      database: { mode: string; ok: boolean };
+    };
+    assert.equal(healthBody.ok, false);
+    assert.equal(healthBody.status, 'degraded');
+    assert.equal(healthBody.database.mode, 'misconfigured');
+    assert.equal(healthBody.database.ok, false);
+
+    const sessionRes = await fetch(`${srvUrl}/api/auth/session`, {
+      headers: { Origin: 'https://buddy-ai-agent-3103-zb41.vercel.app' },
+    });
+    assert.equal(sessionRes.status, 503);
+    assert.ok((sessionRes.headers.get('content-type') || '').includes('application/json'));
+    const sessionBody = (await sessionRes.json()) as { code: string };
+    assert.equal(sessionBody.code, 'DATABASE_ERROR');
+  } finally {
+    if (srv) await new Promise<void>((resolve) => srv!.close(() => resolve()));
+    closeDb();
+    if (prevRailwayEnv === undefined) delete process.env.RAILWAY_ENVIRONMENT;
+    else process.env.RAILWAY_ENVIRONMENT = prevRailwayEnv;
+    if (prevDbPath === undefined) delete process.env.BUDDY_DB_PATH;
+    else process.env.BUDDY_DB_PATH = prevDbPath;
+    if (prevVolumePath === undefined) delete process.env.RAILWAY_VOLUME_MOUNT_PATH;
+    else process.env.RAILWAY_VOLUME_MOUNT_PATH = prevVolumePath;
+    if (prevAllowEphemeral === undefined) delete process.env.BUDDY_ALLOW_EPHEMERAL_DB;
+    else process.env.BUDDY_ALLOW_EPHEMERAL_DB = prevAllowEphemeral;
+  }
+});
+
 
 
 

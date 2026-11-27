@@ -677,8 +677,8 @@ function runMigrations(db) {
 }
 
 // server/ai.ts
-var DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
-var DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-2.5-flash-lite";
+var DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite";
+var DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-4-hydrogen";
 var FRIENDLY_AI_BUSY_MESSAGE = "Buddy is temporarily unable to answer because the AI service is busy. Your question has been saved. Please try again shortly. You can still use Learn Tech, Is This Safe?, Daily Check-In, and Reminders.";
 var FRIENDLY_AI_QUOTA_MESSAGE = "Buddy\u2019s daily AI usage limit has been reached on the server right now. Your question has been saved. Please try again later or ask an administrator to check the Gemini API plan. You can still use Learn Tech, Is This Safe?, Daily Check-In, and Reminders.";
 var VALID_GEMINI_MODEL_REGEX = /^(?:gemini|lyria|genie)-[a-z0-9][a-z0-9.-]{1,60}$/i;
@@ -739,8 +739,9 @@ function normalizeFallbackGeminiModel(raw, primaryModel = getConfiguredGeminiMod
       `[Buddy AI Config] Ignoring invalid or deprecated GEMINI_FALLBACK_MODEL; falling back to ${defaultFallback}.`
     );
   }
+  const resolvedFallback = normalized.model === primaryModel ? defaultFallback : normalized.model;
   return {
-    model: normalized.model === primaryModel ? null : normalized.model,
+    model: resolvedFallback === primaryModel ? null : resolvedFallback,
     invalidOverride: normalized.invalidOverride
   };
 }
@@ -754,10 +755,10 @@ var WORKING_MODEL_TTL_MS = 10 * 60 * 1e3;
 var AI_ATTEMPT_TIMEOUT_MS = 12e3;
 var AI_TOTAL_BUDGET_MS = 28e3;
 var VERIFIED_MODEL_PRIORITY = [
+  "gemini-3.1-flash-lite",
+  "gemini-4-hydrogen",
   "gemini-2.5-flash",
   "gemini-2.5-flash-lite",
-  "gemini-4-hydrogen",
-  "gemini-3.1-flash-lite",
   "gemini-3-flash-preview",
   "gemini-3.1-flash-lite-preview",
   "gemini-flash-latest",
@@ -868,8 +869,8 @@ function getCandidateGeminiModels() {
   const fallback = getConfiguredFallbackGeminiModel(primary);
   const list = fallback && fallback !== primary ? [primary, fallback] : [primary];
   const isDefaultPair = primary === DEFAULT_GEMINI_MODEL && fallback === DEFAULT_GEMINI_FALLBACK_MODEL;
-  if (!isDefaultPair && fallback !== null && !list.includes("gemini-4-hydrogen")) {
-    list.push("gemini-4-hydrogen");
+  if (!isDefaultPair && fallback !== null && !list.includes(DEFAULT_GEMINI_MODEL)) {
+    list.push(DEFAULT_GEMINI_MODEL);
   }
   return list;
 }
@@ -881,7 +882,7 @@ function buildEffectiveCandidateModels(cacheScope) {
   for (let idx = 0; idx < staticCandidates.length; idx++) {
     const modelName = staticCandidates[idx];
     if (isModelKnownNotFound(cacheScope, modelName)) continue;
-    if (idx > 0 && verifiedSet && !verifiedSet.has(modelName)) continue;
+    if (verifiedSet && !verifiedSet.has(modelName)) continue;
     filtered.push(modelName);
   }
   const lastWorking = getLastWorkingModel(cacheScope);
@@ -2030,10 +2031,10 @@ async function runGeminiDiagnostics(options = {}) {
       /* @__PURE__ */ new Set([
         model,
         ...fallbackModel ? [fallbackModel] : [],
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
         "gemini-4-hydrogen",
         "gemini-3.1-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
         "gemini-3.1-flash-lite-preview",
         "gemini-3-flash-preview",
         "gemini-flash-latest"
@@ -2917,19 +2918,28 @@ function getMessagingConfigStatus() {
       error: `BUDDY_MESSAGING_NUMBER is set in the server environment, but is invalid: ${check.error}`
     };
   }
-  const db = getDb();
-  const row = db.prepare(`SELECT value FROM system_config WHERE key = 'buddy_messaging_number'`).get();
-  const dbRaw = row?.value?.trim();
-  if (dbRaw) {
-    const check = normalizePhoneWithCountryCode(dbRaw);
-    if (check.valid) {
-      return { configured: true, number: check.e164, source: "database", error: null };
+  try {
+    const db = getDb();
+    const row = db.prepare(`SELECT value FROM system_config WHERE key = 'buddy_messaging_number'`).get();
+    const dbRaw = row?.value?.trim();
+    if (dbRaw) {
+      const check = normalizePhoneWithCountryCode(dbRaw);
+      if (check.valid) {
+        return { configured: true, number: check.e164, source: "database", error: null };
+      }
+      return {
+        configured: false,
+        number: null,
+        source: "database",
+        error: `Saved messaging number is invalid: ${check.error}`
+      };
     }
+  } catch (err) {
     return {
       configured: false,
       number: null,
-      source: "database",
-      error: `Saved messaging number is invalid: ${check.error}`
+      source: "none",
+      error: err instanceof Error ? err.message : "Database is not initialized."
     };
   }
   return {
@@ -3023,7 +3033,7 @@ function isAllowedCorsOrigin(originHeader, requestHost, env = process.env) {
     }
   }
   const wildcardPatterns = [];
-  for (const rawEntry of (env.ALLOWED_ORIGINS ?? "").split(/[\s,]+/)) {
+  for (const rawEntry of (env.ALLOWED_ORIGINS ?? "").split(/[\s,;]+/)) {
     const clean = rawEntry.trim();
     if (!clean) continue;
     if (clean.includes("*")) {
@@ -3041,9 +3051,19 @@ function isAllowedCorsOrigin(originHeader, requestHost, env = process.env) {
 function createApp() {
   const app = express();
   app.set("trust proxy", 1);
-  getDb();
+  let dbReady = false;
+  try {
+    getDb();
+    dbReady = true;
+  } catch (err) {
+    console.error("[Buddy Elder AI Startup DB Warning]", {
+      code: err instanceof DatabaseConfigError ? err.code : "DB_INIT_ERROR",
+      message: err instanceof Error ? err.message : String(err)
+    });
+  }
   app.locals.buddyMeta = {
     dbMode: getDatabaseStatus().mode,
+    dbReady,
     aiConfigured: getAiStatus().configured,
     messagingConfigured: getMessagingConfigStatus().configured
   };
@@ -3096,6 +3116,17 @@ function createApp() {
     }
     const messaging = getMessagingConfigStatus();
     const dbStatus = getDatabaseStatus();
+    let adminSetup = {
+      hasEnvPasscode: Boolean(getAdminPasscode()),
+      hasClaimedPasscode: false,
+      hasAdminUser: false
+    };
+    if (dbOk) {
+      try {
+        adminSetup = hasAdminConfigured();
+      } catch {
+      }
+    }
     res.status(dbOk ? 200 : 503).json({
       ok: dbOk,
       status: dbOk ? "ok" : "degraded",
@@ -3111,7 +3142,7 @@ function createApp() {
         ...dbStatus,
         ok: dbOk
       },
-      adminSetup: hasAdminConfigured()
+      adminSetup
     });
   });
   app.use("/api/auth", (_req, res, next) => {
@@ -3120,9 +3151,10 @@ function createApp() {
     next();
   });
   app.get("/api/auth/session", (req, res) => {
-    const adminSetup = hasAdminConfigured();
+    let adminSetup;
     let resolution;
     try {
+      adminSetup = hasAdminConfigured();
       resolution = resolveSessionForRequest(req);
     } catch (err) {
       console.error("[Buddy Auth Session DB Error]", {

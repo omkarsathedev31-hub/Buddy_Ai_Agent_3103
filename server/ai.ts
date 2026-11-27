@@ -3,8 +3,8 @@ import type { RiskLevel, SupportedLanguage } from '../shared/types.ts';
 import { isVercelRuntime } from './db.ts';
 import { getGeminiApiKey, getGeminiKeyInfo } from './env.ts';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
-export const DEFAULT_GEMINI_FALLBACK_MODEL = 'gemini-2.5-flash-lite';
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite';
+export const DEFAULT_GEMINI_FALLBACK_MODEL = 'gemini-4-hydrogen';
 
 export const FRIENDLY_AI_BUSY_MESSAGE =
   'Buddy is temporarily unable to answer because the AI service is busy. Your question has been saved. Please try again shortly. You can still use Learn Tech, Is This Safe?, Daily Check-In, and Reminders.';
@@ -96,8 +96,9 @@ export function normalizeFallbackGeminiModel(
       `[Buddy AI Config] Ignoring invalid or deprecated GEMINI_FALLBACK_MODEL; falling back to ${defaultFallback}.`
     );
   }
+  const resolvedFallback = normalized.model === primaryModel ? defaultFallback : normalized.model;
   return {
-    model: normalized.model === primaryModel ? null : normalized.model,
+    model: resolvedFallback === primaryModel ? null : resolvedFallback,
     invalidOverride: normalized.invalidOverride,
   };
 }
@@ -114,10 +115,10 @@ const AI_ATTEMPT_TIMEOUT_MS = 12000;
 const AI_TOTAL_BUDGET_MS = 28000;
 
 const VERIFIED_MODEL_PRIORITY = [
+  'gemini-3.1-flash-lite',
+  'gemini-4-hydrogen',
   'gemini-2.5-flash',
   'gemini-2.5-flash-lite',
-  'gemini-4-hydrogen',
-  'gemini-3.1-flash-lite',
   'gemini-3-flash-preview',
   'gemini-3.1-flash-lite-preview',
   'gemini-flash-latest',
@@ -274,8 +275,8 @@ export function getCandidateGeminiModels(): string[] {
   const fallback = getConfiguredFallbackGeminiModel(primary);
   const list = fallback && fallback !== primary ? [primary, fallback] : [primary];
   const isDefaultPair = primary === DEFAULT_GEMINI_MODEL && fallback === DEFAULT_GEMINI_FALLBACK_MODEL;
-  if (!isDefaultPair && fallback !== null && !list.includes('gemini-4-hydrogen')) {
-    list.push('gemini-4-hydrogen');
+  if (!isDefaultPair && fallback !== null && !list.includes(DEFAULT_GEMINI_MODEL)) {
+    list.push(DEFAULT_GEMINI_MODEL);
   }
   return list;
 }
@@ -292,8 +293,8 @@ function buildEffectiveCandidateModels(cacheScope: string): string[] {
   for (let idx = 0; idx < staticCandidates.length; idx++) {
     const modelName = staticCandidates[idx];
     if (isModelKnownNotFound(cacheScope, modelName)) continue;
-    // Skip speculative/unverified secondary fallbacks when models.list() already proved they are absent
-    if (idx > 0 && verifiedSet && !verifiedSet.has(modelName)) continue;
+    // Skip static candidates (including primary) when models.list() already proved they are absent for this key
+    if (verifiedSet && !verifiedSet.has(modelName)) continue;
     filtered.push(modelName);
   }
 

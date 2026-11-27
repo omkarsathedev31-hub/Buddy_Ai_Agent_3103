@@ -35,7 +35,7 @@ import {
   type RequestSessionResolution,
 } from './auth.ts';
 import { DatabaseConfigError, getDatabaseStatus, getDb } from './db.ts';
-import { getRawEnvMessagingNumber, normalizePhoneWithCountryCode } from './env.ts';
+import { getAdminPasscode, getRawEnvMessagingNumber, normalizePhoneWithCountryCode } from './env.ts';
 import { LESSONS_CATALOG } from './lessons.ts';
 import {
   createAlertIfNotDuplicate,
@@ -122,21 +122,30 @@ export function getMessagingConfigStatus(): MessagingConfigStatus {
     };
   }
 
-  const db = getDb();
-  const row = db
-    .prepare(`SELECT value FROM system_config WHERE key = 'buddy_messaging_number'`)
-    .get() as { value: string } | undefined;
-  const dbRaw = row?.value?.trim();
-  if (dbRaw) {
-    const check = normalizePhoneWithCountryCode(dbRaw);
-    if (check.valid) {
-      return { configured: true, number: check.e164, source: 'database', error: null };
+  try {
+    const db = getDb();
+    const row = db
+      .prepare(`SELECT value FROM system_config WHERE key = 'buddy_messaging_number'`)
+      .get() as { value: string } | undefined;
+    const dbRaw = row?.value?.trim();
+    if (dbRaw) {
+      const check = normalizePhoneWithCountryCode(dbRaw);
+      if (check.valid) {
+        return { configured: true, number: check.e164, source: 'database', error: null };
+      }
+      return {
+        configured: false,
+        number: null,
+        source: 'database',
+        error: `Saved messaging number is invalid: ${check.error}`,
+      };
     }
+  } catch (err) {
     return {
       configured: false,
       number: null,
-      source: 'database',
-      error: `Saved messaging number is invalid: ${check.error}`,
+      source: 'none',
+      error: err instanceof Error ? err.message : 'Database is not initialized.',
     };
   }
 
@@ -174,7 +183,7 @@ function normalizeOriginEntry(raw: string): string | null {
   }
 }
 
-function isProjectVercelPreviewOrigin(parsedOrigin: URL): boolean {
+export function isProjectVercelPreviewOrigin(parsedOrigin: URL): boolean {
   if (parsedOrigin.protocol !== 'https:') return false;
   const host = parsedOrigin.hostname.toLowerCase();
   return /^buddy-ai-agent-(?:3103|31)(?:-[a-z0-9-]+)*\.vercel\.app$/.test(host);
@@ -263,7 +272,7 @@ export function isAllowedCorsOrigin(
   }
 
   const wildcardPatterns: string[] = [];
-  for (const rawEntry of (env.ALLOWED_ORIGINS ?? '').split(/[\s,]+/)) {
+  for (const rawEntry of (env.ALLOWED_ORIGINS ?? '').split(/[\s,;]+/)) {
     const clean = rawEntry.trim();
     if (!clean) continue;
     if (clean.includes('*')) {
@@ -285,10 +294,20 @@ export function createApp() {
   const app = express();
   app.set('trust proxy', 1);
 
-  // Initialize database on startup
-  getDb();
+  // Initialize database on startup without crashing the HTTP listener if persistent DB config is missing
+  let dbReady = false;
+  try {
+    getDb();
+    dbReady = true;
+  } catch (err) {
+    console.error('[Buddy Elder AI Startup DB Warning]', {
+      code: err instanceof DatabaseConfigError ? err.code : 'DB_INIT_ERROR',
+      message: err instanceof Error ? err.message : String(err),
+    });
+  }
   app.locals.buddyMeta = {
     dbMode: getDatabaseStatus().mode,
+    dbReady,
     aiConfigured: getAiStatus().configured,
     messagingConfigured: getMessagingConfigStatus().configured,
   };
@@ -355,6 +374,19 @@ export function createApp() {
 
     const messaging = getMessagingConfigStatus();
     const dbStatus = getDatabaseStatus();
+    let adminSetup = {
+      hasEnvPasscode: Boolean(getAdminPasscode()),
+      hasClaimedPasscode: false,
+      hasAdminUser: false,
+    };
+    if (dbOk) {
+      try {
+        adminSetup = hasAdminConfigured();
+      } catch {
+        // Keep safe default fallback
+      }
+    }
+
     res.status(dbOk ? 200 : 503).json({
       ok: dbOk,
       status: dbOk ? 'ok' : 'degraded',
@@ -370,7 +402,7 @@ export function createApp() {
         ...dbStatus,
         ok: dbOk,
       },
-      adminSetup: hasAdminConfigured(),
+      adminSetup,
     });
   });
 
@@ -382,9 +414,10 @@ export function createApp() {
 
   // Session Inspection
   app.get('/api/auth/session', (req: AuthenticatedRequest, res) => {
-    const adminSetup = hasAdminConfigured();
+    let adminSetup: ReturnType<typeof hasAdminConfigured>;
     let resolution: RequestSessionResolution;
     try {
+      adminSetup = hasAdminConfigured();
       resolution = resolveSessionForRequest(req);
     } catch (err) {
       console.error('[Buddy Auth Session DB Error]', {

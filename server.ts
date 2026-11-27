@@ -56,15 +56,24 @@ async function startServer() {
 
   const httpServer = app.listen(PORT, '0.0.0.0', () => {
     const dbMeta = app.locals.buddyMeta as
-      | { dbMode?: string; aiConfigured?: boolean; messagingConfigured?: boolean }
+      | { dbMode?: string; dbReady?: boolean; aiConfigured?: boolean; messagingConfigured?: boolean }
       | undefined;
     const dbStatus = getDatabaseStatus();
+    let resolvedDbPath = 'unconfigured';
+    try {
+      resolvedDbPath = getDbPath();
+    } catch (err) {
+      console.error(
+        '[Buddy Elder AI Startup DB Config Error]',
+        err instanceof Error ? err.message : String(err)
+      );
+    }
     console.log(
       `Buddy Elder AI server running on http://0.0.0.0:${PORT} (${isProd ? 'production' : 'development'})`,
       {
         ...(dbMeta ?? {}),
         dbDurable: dbStatus.durable,
-        dbPath: getDbPath(),
+        dbPath: resolvedDbPath,
         aiKeySource: getGeminiKeyInfo().source,
       }
     );
