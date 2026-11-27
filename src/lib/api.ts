@@ -69,7 +69,7 @@ export function setOnUnauthorizedHandler(handler: ((message: string) => void) | 
 }
 
 export const DEFAULT_PRODUCTION_BACKEND_URL =
-  'https://buddyaiagent31-production-2b4b7ec3.up.railway.app';
+  'https://buddyaiagent3103-production.up.railway.app';
 
 export interface BackendHealthResponse {
   ok: boolean;
@@ -88,7 +88,7 @@ function isLocalHostname(hostname: string): boolean {
 
 export function isProjectVercelHostname(hostname: string): boolean {
   const lower = hostname.trim().toLowerCase();
-  return /^buddy-ai-agent-31(?:-[a-z0-9-]+)*\.vercel\.app$/.test(lower);
+  return /^buddy-ai-agent-(?:3103|31)(?:-[a-z0-9-]+)*\.vercel\.app$/.test(lower);
 }
 
 export function isAiStudioPreviewHostname(hostname: string): boolean {
@@ -158,6 +158,15 @@ export function resolveApiBase(
   // rather than accidentally sending dev traffic to a remote production URL copied into .env.
   if (currentLocation && isLocalHostname(currentLocation.hostname) && isDev && !isLocalHostname(parsed.hostname)) {
     return { baseUrl: '' };
+  }
+
+  // Never allow private Railway internal domains in browser code
+  if (parsed.hostname.toLowerCase().endsWith('.railway.internal')) {
+    return {
+      baseUrl: '',
+      configError:
+        'VITE_API_BASE_URL cannot use a private .railway.internal domain in the browser. Configure your public Railway URL (for example https://buddyaiagent3103-production.up.railway.app).',
+    };
   }
 
   // Never allow a deployed production site on a public hostname to call localhost/127.0.0.1
@@ -405,7 +414,14 @@ export async function apiRequest<T>(
       );
     }
     const browserOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-    const isCrossOrigin = Boolean(baseUrl && (!browserOrigin || !baseUrl.startsWith(browserOrigin)));
+    let isCrossOrigin = false;
+    if (baseUrl) {
+      try {
+        isCrossOrigin = !browserOrigin || new URL(baseUrl).origin !== browserOrigin;
+      } catch {
+        isCrossOrigin = true;
+      }
+    }
     if (isCrossOrigin) {
       throw new ApiError(
         `Could not connect to the configured backend server (${baseUrl}). Verify that the backend is running, VITE_API_BASE_URL is correct, and ALLOWED_ORIGINS includes ${browserOrigin || 'this site origin'}.`,

@@ -177,7 +177,7 @@ function normalizeOriginEntry(raw: string): string | null {
 function isProjectVercelPreviewOrigin(parsedOrigin: URL): boolean {
   if (parsedOrigin.protocol !== 'https:') return false;
   const host = parsedOrigin.hostname.toLowerCase();
-  return /^buddy-ai-agent-31(?:-[a-z0-9-]+)*\.vercel\.app$/.test(host);
+  return /^buddy-ai-agent-(?:3103|31)(?:-[a-z0-9-]+)*\.vercel\.app$/.test(host);
 }
 
 function matchesScopedWildcardOrigin(originUrl: URL, pattern: string): boolean {
@@ -241,7 +241,15 @@ export function isAllowedCorsOrigin(
     if (norm) configuredOrigins.add(norm);
   }
 
-  if (env.NODE_ENV !== 'production' && !env.VERCEL) {
+  const isRailwayHost = Boolean(
+    env.RAILWAY_ENVIRONMENT ||
+      env.RAILWAY_PROJECT_ID ||
+      env.RAILWAY_SERVICE_ID ||
+      env.RAILWAY_VOLUME_MOUNT_PATH ||
+      env.RAILWAY_PUBLIC_DOMAIN
+  );
+
+  if (env.NODE_ENV !== 'production' && !env.VERCEL && !isRailwayHost) {
     for (const devOrigin of [
       'http://localhost:3000',
       'http://127.0.0.1:3000',
@@ -308,6 +316,7 @@ export function createApp() {
         res.setHeader('Access-Control-Allow-Credentials', 'true');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        res.setHeader('Access-Control-Expose-Headers', 'Retry-After');
         res.setHeader('Access-Control-Max-Age', '86400');
       }
     }

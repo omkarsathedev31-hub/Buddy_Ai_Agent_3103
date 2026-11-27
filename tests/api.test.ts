@@ -566,7 +566,7 @@ test('End-to-end auth, RBAC, permissions, safety, lessons, reminders, messaging 
   }
 
   // 15. Strict Origin-Allowlist CORS headers & preflight verification
-  process.env.ALLOWED_ORIGINS = ' https://buddy-elder-ui.vercel.app/ , https://buddy-ai-agent-31-*.vercel.app ';
+  process.env.ALLOWED_ORIGINS = ' https://buddy-elder-ui.vercel.app/ , https://buddy-ai-agent-3103-*.vercel.app ';
   try {
     const allowedPreflight = await fetch(`${baseUrl}/api/health`, {
       method: 'OPTIONS',
@@ -576,9 +576,13 @@ test('End-to-end auth, RBAC, permissions, safety, lessons, reminders, messaging 
     assert.equal(allowedPreflight.headers.get('access-control-allow-origin'), 'https://buddy-elder-ui.vercel.app');
     assert.equal(allowedPreflight.headers.get('access-control-allow-credentials'), 'true');
     assert.ok(allowedPreflight.headers.get('access-control-allow-headers')?.includes('X-Requested-With'));
+    assert.ok(allowedPreflight.headers.get('access-control-expose-headers')?.includes('Retry-After'));
 
-    // Production stable Vercel origin & deployment-specific preview origin must both be allowed
+    // Production 3103 origin, Vercel 3103 preview origin, and legacy 31 origins must all be allowed
     for (const projectOrigin of [
+      'https://buddy-ai-agent-3103.vercel.app',
+      'https://buddy-ai-agent-3103-8arqyh10d-om-d8c9.vercel.app',
+      'https://buddy-ai-agent-3103-git-main.vercel.app',
       'https://buddy-ai-agent-31-1x82.vercel.app',
       'https://buddy-ai-agent-31-1x82-8lcsgklmf-om-d8c9.vercel.app',
       'https://buddy-ai-agent-31-git-main.vercel.app',
@@ -591,24 +595,56 @@ test('End-to-end auth, RBAC, permissions, safety, lessons, reminders, messaging 
           'Access-Control-Request-Headers': 'Content-Type, Authorization, X-Requested-With',
         },
       });
-      assert.equal(projectPreflight.status, 204);
+      assert.equal(projectPreflight.status, 204, `Expected preflight 204 for ${projectOrigin}`);
       assert.equal(projectPreflight.headers.get('access-control-allow-origin'), projectOrigin);
       assert.equal(projectPreflight.headers.get('access-control-allow-credentials'), 'true');
     }
 
-    const unlistedCors = await fetch(`${baseUrl}/api/health`, {
-      method: 'GET',
-      headers: { Origin: 'https://untrusted-site.vercel.app' },
-    });
-    assert.equal(unlistedCors.status, 200);
-    assert.equal(unlistedCors.headers.get('access-control-allow-origin'), null);
+    // Unrelated Vercel origins, lookalikes, and non-HTTPS schemes must be rejected
+    for (const badOrigin of [
+      'https://untrusted-site.vercel.app',
+      'https://buddy-ai-agent-3103evil.vercel.app',
+      'https://evil-buddy-ai-agent-3103.vercel.app',
+      'https://buddy-ai-agent-3104.vercel.app',
+      'http://buddy-ai-agent-3103.vercel.app',
+    ]) {
+      const unlistedCors = await fetch(`${baseUrl}/api/health`, {
+        method: 'GET',
+        headers: { Origin: badOrigin },
+      });
+      assert.equal(unlistedCors.status, 200);
+      assert.equal(unlistedCors.headers.get('access-control-allow-origin'), null, `Must reject ${badOrigin}`);
 
-    const deniedPreflight = await fetch(`${baseUrl}/api/auth/session`, {
-      method: 'OPTIONS',
-      headers: { Origin: 'https://untrusted-site.vercel.app' },
-    });
-    assert.equal(deniedPreflight.status, 403);
-    assert.equal(deniedPreflight.headers.get('access-control-allow-origin'), null);
+      const deniedPreflight = await fetch(`${baseUrl}/api/auth/session`, {
+        method: 'OPTIONS',
+        headers: { Origin: badOrigin },
+      });
+      assert.equal(deniedPreflight.status, 403, `Must reject preflight for ${badOrigin}`);
+      assert.equal(deniedPreflight.headers.get('access-control-allow-origin'), null);
+    }
+
+    // Broad wildcards like *.vercel.app must never be honored, and Railway runtime suppresses localhost dev origins
+    const { isAllowedCorsOrigin } = await import('../server/app.ts');
+    assert.equal(
+      isAllowedCorsOrigin('https://unrelated-app.vercel.app', 'buddyaiagent3103-production.up.railway.app', {
+        ALLOWED_ORIGINS: 'https://*.vercel.app',
+        NODE_ENV: 'production',
+      }),
+      false
+    );
+    assert.equal(
+      isAllowedCorsOrigin('http://localhost:3000', 'buddyaiagent3103-production.up.railway.app', {
+        RAILWAY_PUBLIC_DOMAIN: 'buddyaiagent3103-production.up.railway.app',
+      }),
+      false
+    );
+    assert.equal(
+      isAllowedCorsOrigin('https://buddy-ai-agent-3103-8arqyh10d-om-d8c9.vercel.app', 'buddyaiagent3103-production.up.railway.app', {
+        NODE_ENV: 'production',
+        APP_URL: 'https://buddy-ai-agent-3103.vercel.app',
+      }),
+      true
+    );
   } finally {
     delete process.env.ALLOWED_ORIGINS;
   }
@@ -905,6 +941,16 @@ test('resolveApiBase prevents localhost calls from production sites, routes Verc
     hostname: 'buddy-elder.vercel.app',
     origin: 'https://buddy-elder.vercel.app',
   };
+  const project3103ProdLoc = {
+    protocol: 'https:',
+    hostname: 'buddy-ai-agent-3103.vercel.app',
+    origin: 'https://buddy-ai-agent-3103.vercel.app',
+  };
+  const project3103PreviewLoc = {
+    protocol: 'https:',
+    hostname: 'buddy-ai-agent-3103-8arqyh10d-om-d8c9.vercel.app',
+    origin: 'https://buddy-ai-agent-3103-8arqyh10d-om-d8c9.vercel.app',
+  };
   const projectVercelProdLoc = {
     protocol: 'https:',
     hostname: 'buddy-ai-agent-31-1x82.vercel.app',
@@ -931,30 +977,40 @@ test('resolveApiBase prevents localhost calls from production sites, routes Verc
     origin: 'https://ais-dev-2qxhk3go2y6jbo5wdgpa3t-670663735174.asia-northeast1.run.app',
   };
 
+  assert.equal(DEFAULT_PRODUCTION_BACKEND_URL, 'https://buddyaiagent3103-production.up.railway.app');
   assert.equal(resolveApiBase('undefined', prodLoc, false).baseUrl, '');
   assert.equal(resolveApiBase('/api', prodLoc, false).baseUrl, '');
+  assert.equal(resolveApiBase('undefined', project3103ProdLoc, false).baseUrl, DEFAULT_PRODUCTION_BACKEND_URL);
+  assert.equal(resolveApiBase('undefined', project3103PreviewLoc, false).baseUrl, DEFAULT_PRODUCTION_BACKEND_URL);
   assert.equal(resolveApiBase('undefined', projectVercelProdLoc, false).baseUrl, DEFAULT_PRODUCTION_BACKEND_URL);
   assert.equal(resolveApiBase('undefined', projectVercelPreviewLoc, false).baseUrl, DEFAULT_PRODUCTION_BACKEND_URL);
   assert.equal(resolveApiBase('undefined', projectVercelBranchLoc, false).baseUrl, DEFAULT_PRODUCTION_BACKEND_URL);
   // Misconfigured Vercel self-origin automatically heals to the Railway backend URL
   assert.equal(
+    resolveApiBase('https://buddy-ai-agent-3103.vercel.app', project3103ProdLoc, false).baseUrl,
+    DEFAULT_PRODUCTION_BACKEND_URL
+  );
+  assert.equal(
     resolveApiBase('https://buddy-ai-agent-31-1x82.vercel.app', projectVercelProdLoc, false).baseUrl,
     DEFAULT_PRODUCTION_BACKEND_URL
   );
+  // Private Railway internal domain must never be used in browser code
+  assert.equal(resolveApiBase('https://buddyaiagent3103.railway.internal', project3103ProdLoc, false).baseUrl, '');
+  assert.ok(resolveApiBase('https://buddyaiagent3103.railway.internal', project3103ProdLoc, false).configError);
   // Local dev (localhost:3000 / Vite proxy) always stays local in dev mode even if .env has remote URL
   assert.equal(resolveApiBase('', localDevLoc, true).baseUrl, '');
   assert.equal(resolveApiBase(DEFAULT_PRODUCTION_BACKEND_URL, localDevLoc, true).baseUrl, '');
   assert.equal(resolveApiBase('http://localhost:3000', localDevLoc, true).baseUrl, 'http://localhost:3000');
 
   assert.equal(
-    resolveApiBase('buddyaiagent31-production.up.railway.app', prodLoc, false).baseUrl,
-    'https://buddyaiagent31-production.up.railway.app'
+    resolveApiBase('buddyaiagent3103-production.up.railway.app', prodLoc, false).baseUrl,
+    'https://buddyaiagent3103-production.up.railway.app'
   );
   assert.equal(
-    resolveApiBase('buddyaiagent31-production.up.railway.app/api/', prodLoc, false).baseUrl,
-    'https://buddyaiagent31-production.up.railway.app'
+    resolveApiBase('buddyaiagent3103-production.up.railway.app/api/', prodLoc, false).baseUrl,
+    'https://buddyaiagent3103-production.up.railway.app'
   );
-  assert.equal(resolveApiBase('buddyaiagent31-production.up.railway.app', aiStudioPreviewLoc, false).baseUrl, '');
+  assert.equal(resolveApiBase('buddyaiagent3103-production.up.railway.app', aiStudioPreviewLoc, false).baseUrl, '');
   assert.equal(resolveApiBase('http://localhost:3000', prodLoc, false).baseUrl, '');
   assert.ok(resolveApiBase('http://localhost:3000', prodLoc, false).configError);
   assert.equal(resolveApiBase('https://api.buddyelder.com/api/', prodLoc, false).baseUrl, 'https://api.buddyelder.com');
@@ -1416,7 +1472,7 @@ test('Sessions and user data persist across server restarts, enforce expiry/inva
 });
 
 test('Auth lifecycle handles stale Bearer/duplicate cookie fallback, cross-origin no-store headers, idempotent logout, and re-login', async () => {
-  const vercelOrigin = 'https://buddy-ai-agent-31-1x82.vercel.app';
+  const vercelOrigin = 'https://buddy-ai-agent-3103-8arqyh10d-om-d8c9.vercel.app';
   const email = `auth_cycle_${Date.now()}@example.com`;
 
   // 1. Register -> verify no-store headers & CORS credentials
